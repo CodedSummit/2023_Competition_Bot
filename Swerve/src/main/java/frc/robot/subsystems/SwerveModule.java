@@ -6,8 +6,11 @@ import com.revrobotics.SparkMaxAnalogSensor;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DigitalSource;
+import edu.wpi.first.wpilibj.DutyCycle;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.RobotController;
-
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -26,13 +29,11 @@ public class SwerveModule {
     private final TalonFX driveTalonFX;
     private final CANSparkMax turningMotor;
 
-    //private final CANEncoder driveEncoder;
     private final RelativeEncoder turningEncoder;
 
     private final PIDController turningPidController;
 
-    //private final AnalogInput absoluteEncoder;
-    private final SparkMaxAnalogSensor directionEncoder;
+    private final DutyCycleEncoder directionDutyCycle;
 
     private final boolean absoluteEncoderReversed;
     private final double absoluteEncoderOffsetRad;
@@ -52,19 +53,18 @@ public class SwerveModule {
         //driveMotor = new CANSparkMax(driveMotorId, MotorType.kBrushless);
         turningMotor = new CANSparkMax(turningMotorId, MotorType.kBrushless);
 
-        //get absolute encoder attached to turning motor
-        directionEncoder = turningMotor.getAnalog(SparkMaxAnalogSensor.Mode.kAbsolute);
+        //use the same DIO pins as motor numbering. 
+        // TODO: add this as configuration
+        directionDutyCycle = new DutyCycleEncoder(driveMotorId);
+        directionDutyCycle.setDutyCycleRange(1/4096, 4096/4096);
 
         driveTalonFX.configFactoryDefault();
 
         driveTalonFX.setInverted(driveMotorReversed);
         turningMotor.setInverted(turningMotorReversed);
 
-        //driveEncoder = driveTalonFX.getEncoder();
         turningEncoder = turningMotor.getEncoder();
 
-        //driveEncoder.setPositionConversionFactor(ModuleConstants.kDriveEncoderRot2Meter);
-        //driveEncoder.setVelocityConversionFactor(ModuleConstants.kDriveEncoderRPM2MeterPerSec);
         turningEncoder.setPositionConversionFactor(ModuleConstants.kTurningEncoderRot2Rad);
         turningEncoder.setVelocityConversionFactor(ModuleConstants.kTurningEncoderRPM2RadPerSec);
 
@@ -80,8 +80,8 @@ public class SwerveModule {
     }
 
     public double getTurningPosition() {
-        SmartDashboard.putNumber("Wheel-"+driveid, turningEncoder.getPosition());
-        return turningEncoder.getPosition();
+        SmartDashboard.putNumber("Wheel-"+driveid, getAbsoluteEncoderRad());
+        return getAbsoluteEncoderRad();
     }
 
     public SwerveModulePosition getPosition() {
@@ -99,11 +99,10 @@ public class SwerveModule {
     }
 
     public double getAbsoluteEncoderRad() {
-        double angle = directionEncoder.getPosition();
-        angle -= absoluteEncoderOffsetRad;
+        directionDutyCycle.getAbsolutePosition();
+        double angle = directionDutyCycle.getAbsolutePosition();
         
-        //double angle = absoluteEncoder.getVoltage() / RobotController.getVoltage5V();
-        //angle *= 2.0 * Math.PI;
+        angle *= 2.0 * Math.PI; //convert 0-1 range into radians
 
         angle -= absoluteEncoderOffsetRad;
         return angle * (absoluteEncoderReversed ? -1.0 : 1.0);
@@ -120,22 +119,17 @@ public class SwerveModule {
     }
 
     public void setDesiredState(SwerveModuleState state) {
-        if (Math.abs(state.speedMetersPerSecond) < 0.001) {
+        if (Math.abs(state.speedMetersPerSecond) < 0.005) {
             stop();
             return;
         }
         state = SwerveModuleState.optimize(state, getState().angle);
-        //driveMotor.set(state.speedMetersPerSecond / DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
         driveTalonFX.set(ControlMode.PercentOutput, state.speedMetersPerSecond / DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
         turningMotor.set(turningPidController.calculate(getTurningPosition(), state.angle.getRadians()));
-        SmartDashboard.putString("Swerve[" + driveid + "] state", state.toString());
-        SmartDashboard.putNumber("Swerve[" + driveid + "] turn existing", getTurningPosition());
-        SmartDashboard.putNumber("Swerve[" + driveid + "] turn desired", state.angle.getRadians());
     }
 
     public void stop() {
         driveTalonFX.set(ControlMode.PercentOutput, 0);
-        //driveMotor.set(0);
         turningMotor.set(0);
     }
 }
