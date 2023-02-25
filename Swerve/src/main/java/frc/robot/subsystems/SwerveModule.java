@@ -43,14 +43,14 @@ public class SwerveModule {
     private final String encoderOffsetKey;
 
     public SwerveModule(int driveMotorId, int turningMotorId, boolean driveMotorReversed, boolean turningMotorReversed,
-            int absoluteEncoderId, double absoluteEncoderOffset, boolean absoluteEncoderReversed) {
+            int absoluteEncoderId, boolean absoluteEncoderReversed) { // removed args: double absoluteEncoderOffset
 
         driveid = driveMotorId;
 
         encoderOffsetKey = "absoluteEndcoderOffsetRadWheel"+driveid;
         Preferences.initDouble(encoderOffsetKey, 0);
 
-        this.absoluteEncoderOffsetRad = absoluteEncoderOffset;
+        //this.absoluteEncoderOffsetRad = 0; //set in preferences
         this.absoluteEncoderReversed = absoluteEncoderReversed;
         //absoluteEncoder = new AnalogInput(absoluteEncoderId);
 
