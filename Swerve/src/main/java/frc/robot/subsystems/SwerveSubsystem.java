@@ -4,6 +4,8 @@ import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 //import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -66,7 +68,18 @@ public class SwerveSubsystem extends SubsystemBase {
             }
         }).start();
         loadPreferences();
+
+        ShuffleboardTab swerveTab = Shuffleboard.getTab("Swerve");
+        swerveTab.add("Front Left", frontLeft)
+            .withSize(2,1);
+        swerveTab.add("Front Right", frontRight)
+            .withSize(2,1);
+        swerveTab.add("Back Right", backRight)
+            .withSize(2,1);
+        swerveTab.add("Back Left", backLeft)
+            .withSize(2,1);
     }
+
 
     public void loadPreferences(){
         frontLeft.loadPreferences();

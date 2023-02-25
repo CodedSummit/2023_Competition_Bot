@@ -16,6 +16,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
@@ -25,8 +27,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.sensors.CANCoder;
 
-public class SwerveModule {
-
+public class SwerveModule implements Sendable {
     private final TalonFX driveTalonFX;
     private final CANSparkMax turningMotor;
 
@@ -58,6 +59,7 @@ public class SwerveModule {
         //driveMotor = new CANSparkMax(driveMotorId, MotorType.kBrushless);
         turningMotor = new CANSparkMax(turningMotorId, MotorType.kBrushless);
 
+        
         //use the same DIO pins as motor numbering. 
         // TODO: add this as configuration
         directionDutyCycle = new DutyCycleEncoder(driveMotorId);
@@ -74,7 +76,7 @@ public class SwerveModule {
         turningEncoder.setVelocityConversionFactor(ModuleConstants.kTurningEncoderRPM2RadPerSec);
 
         turningPidController = new PIDController(ModuleConstants.kPTurning, 0, 0);
-        turningPidController.enableContinuousInput(-Math.PI, Math.PI);
+        turningPidController.enableContinuousInput(0, 2 * Math.PI);
         loadPreferences(); //to set initial values from storage
         resetEncoders();
     }
@@ -140,5 +142,13 @@ public class SwerveModule {
     public void stop() {
         driveTalonFX.set(ControlMode.PercentOutput, 0);
         turningMotor.set(0);
+    }
+
+    @Override
+    public void initSendable(SendableBuilder builder) {
+        // TODO Auto-generated method stub
+        builder.addDoubleProperty("Drive Percentage", () -> driveTalonFX.getMotorOutputPercent() , null);
+        builder.addDoubleProperty("Rotate Percentage", () -> turningMotor.getAppliedOutput() , null);
+        builder.addDoubleProperty("RotationRad", () -> getTurningPosition(), null);
     }
 }
