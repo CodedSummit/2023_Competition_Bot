@@ -65,6 +65,14 @@ public class SwerveSubsystem extends SubsystemBase {
             } catch (Exception e) {
             }
         }).start();
+        loadPreferences();
+    }
+
+    public void loadPreferences(){
+        frontLeft.loadPreferences();
+        frontRight.loadPreferences();
+        backLeft.loadPreferences();
+        backRight.loadPreferences();
     }
 
     public void zeroHeading() {

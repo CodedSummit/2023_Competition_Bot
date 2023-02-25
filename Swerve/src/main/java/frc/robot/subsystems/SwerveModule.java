@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalSource;
 import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.math.controller.PIDController;
@@ -36,15 +37,19 @@ public class SwerveModule {
     private final DutyCycleEncoder directionDutyCycle;
 
     private final boolean absoluteEncoderReversed;
-    private final double absoluteEncoderOffsetRad;
+    private double absoluteEncoderOffsetRad;
 
     private final int driveid;
+    private final String encoderOffsetKey;
 
     public SwerveModule(int driveMotorId, int turningMotorId, boolean driveMotorReversed, boolean turningMotorReversed,
             int absoluteEncoderId, double absoluteEncoderOffset, boolean absoluteEncoderReversed) {
 
         driveid = driveMotorId;
-        
+
+        encoderOffsetKey = "absoluteEndcoderOffsetRadWheel"+driveid;
+        Preferences.initDouble(encoderOffsetKey, 0);
+
         this.absoluteEncoderOffsetRad = absoluteEncoderOffset;
         this.absoluteEncoderReversed = absoluteEncoderReversed;
         //absoluteEncoder = new AnalogInput(absoluteEncoderId);
@@ -70,8 +75,12 @@ public class SwerveModule {
 
         turningPidController = new PIDController(ModuleConstants.kPTurning, 0, 0);
         turningPidController.enableContinuousInput(-Math.PI, Math.PI);
-
+        loadPreferences(); //to set initial values from storage
         resetEncoders();
+    }
+
+    public void loadPreferences(){
+        this.absoluteEncoderOffsetRad = Preferences.getDouble(encoderOffsetKey, 0);
     }
 
     public double getDrivePosition() {
@@ -111,7 +120,7 @@ public class SwerveModule {
     public void resetEncoders() {
         //driveEncoder.setPosition(0);
         driveTalonFX.setSelectedSensorPosition(0.0);
-        turningEncoder.setPosition(getAbsoluteEncoderRad());
+        turningEncoder.setPosition(getAbsoluteEncoderRad()); //TODO: this isn't referencing the right encoder. now using directionDutyCycle
     }
 
     public SwerveModuleState getState() {

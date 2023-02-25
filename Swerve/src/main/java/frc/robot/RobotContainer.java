@@ -48,6 +48,10 @@ public class RobotContainer {
     configureBindings();
   }
 
+  public void loadPreferences(){
+    swerveSubsystem.loadPreferences();
+  }
+
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
    * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
