@@ -10,6 +10,7 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.SwerveJoystickCmd;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -27,6 +28,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
+
+  private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -72,10 +75,20 @@ public class RobotContainer {
 
     // Left Bumper controls field orientation for drive mode. Upressed (default) is field oriented
     //     Pressed is robot oriented
-    m_driverController.leftBumper()
+    /*m_driverController.leftBumper()
       .onTrue(new InstantCommand(() -> swerveJoystickCmd.setFieldOriented(false)))
       .onFalse(new InstantCommand(() -> swerveJoystickCmd.setFieldOriented(true)));
-    
+    */ // robot oriented not working quite right.
+
+    m_driverController.b()
+      .onTrue(new InstantCommand(() -> intakeSubsystem.InputIn()))
+      .onFalse(new InstantCommand(() -> intakeSubsystem.stop()));
+
+    m_driverController.x()
+      .onTrue(new InstantCommand(() -> intakeSubsystem.InputOut()))
+      .onFalse(new InstantCommand(() -> intakeSubsystem.stop()));
+
+      
   }
 
   /**

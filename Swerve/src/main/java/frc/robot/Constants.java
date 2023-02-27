@@ -44,15 +44,15 @@ public static final class DriveConstants {
           new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
           new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
 
-  public static final int kFrontLeftDriveMotorPort = 1;
-  public static final int kBackLeftDriveMotorPort = 4;
-  public static final int kFrontRightDriveMotorPort = 2;
-  public static final int kBackRightDriveMotorPort = 3;
+  public static final int kFrontLeftDriveMotorPort = 2;
+  public static final int kBackLeftDriveMotorPort = 1;
+  public static final int kFrontRightDriveMotorPort = 3;
+  public static final int kBackRightDriveMotorPort = 4;
 
-  public static final int kFrontLeftTurningMotorPort = 1;
-  public static final int kBackLeftTurningMotorPort = 4;
-  public static final int kFrontRightTurningMotorPort = 2;
-  public static final int kBackRightTurningMotorPort = 3;
+  public static final int kFrontLeftTurningMotorPort = 2;
+  public static final int kBackLeftTurningMotorPort = 1;
+  public static final int kFrontRightTurningMotorPort = 3;
+  public static final int kBackRightTurningMotorPort = 4;
 
   public static final boolean kFrontLeftTurningEncoderReversed = true;
   public static final boolean kBackLeftTurningEncoderReversed = true;
@@ -82,7 +82,7 @@ public static final class DriveConstants {
   public static final double kPhysicalMaxSpeedMetersPerSecond = 5;
   public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = 2 * 2 * Math.PI;
 
-  public static final double kTeleDriveMaxSpeedMetersPerSecond = kPhysicalMaxSpeedMetersPerSecond / 4;
+  public static final double kTeleDriveMaxSpeedMetersPerSecond = kPhysicalMaxSpeedMetersPerSecond / 3; //2 is slow, 4 is fast
   public static final double kTeleDriveMaxAngularSpeedRadiansPerSecond = //
           kPhysicalMaxAngularSpeedRadiansPerSecond / 4;
   public static final double kTeleDriveMaxAccelerationUnitsPerSecond = 3;
@@ -99,5 +99,11 @@ public static final class OIConstants {
 
   public static final double kDeadband = 0.05;
 }
+
+public static final class InputSystemConstants {
+  public static final int kInputMotorCANid = 7;
+}
+
+//can id for arm motor 6
 
 }
