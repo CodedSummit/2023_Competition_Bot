@@ -9,10 +9,13 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.SwerveJoystickCmd;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
@@ -30,6 +33,7 @@ public class RobotContainer {
   private final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
 
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+  private final ArmSubsystem armSubsystem = new ArmSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -45,6 +49,12 @@ public class RobotContainer {
       swerveSubsystem,
       m_driverController);
     swerveSubsystem.setDefaultCommand(swerveJoystickCmd); 
+
+    ShuffleboardTab armTab = Shuffleboard.getTab("Arm");
+    armTab.add("Arm", armSubsystem)
+        .withSize(2,2);
+    armTab.add("Intake", intakeSubsystem)
+        .withSize(2,2);
 
     // Configure the trigger bindings
     configureBindings();
@@ -87,6 +97,14 @@ public class RobotContainer {
     m_driverController.x()
       .onTrue(new InstantCommand(() -> intakeSubsystem.InputOut()))
       .onFalse(new InstantCommand(() -> intakeSubsystem.stop()));
+
+      m_driverController.povUp()
+      .onTrue(new InstantCommand(() -> armSubsystem.Up()))
+      .onFalse(new InstantCommand(() -> armSubsystem.stop()));
+
+      m_driverController.povDown()
+      .onTrue(new InstantCommand(() -> armSubsystem.Down()))
+      .onFalse(new InstantCommand(() -> armSubsystem.stop()));
 
       
   }

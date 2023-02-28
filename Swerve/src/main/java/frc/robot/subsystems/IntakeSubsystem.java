@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.InputSystemConstants;
@@ -16,11 +17,15 @@ public class IntakeSubsystem extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
 
   private CANSparkMax intakeMotor;
+  private double intakespeed, outtakespeed;
 
   public IntakeSubsystem() {
 
     intakeMotor = new CANSparkMax(InputSystemConstants.kInputMotorCANid, MotorType.kBrushless);
     intakeMotor.setIdleMode(IdleMode.kBrake);
+
+    intakespeed = 0.25;
+    outtakespeed = 0.15;
   }
 
   /**
@@ -38,11 +43,11 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void InputIn(){
-    intakeMotor.set(50);
+    intakeMotor.set(-intakespeed);
   }
 
   public void InputOut(){
-    intakeMotor.set(-50);
+    intakeMotor.set(outtakespeed);
   
   }
 
@@ -69,4 +74,13 @@ public class IntakeSubsystem extends SubsystemBase {
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
   }
+
+  public void initSendable(SendableBuilder builder) {
+    // TODO Auto-generated method stub
+    builder.addDoubleProperty("Motor", () -> intakeMotor.get() , null);
+    builder.addDoubleProperty("intake speed", () -> intakespeed , (n) -> intakespeed = n);
+    builder.addDoubleProperty("outtake speed", () -> intakespeed , (n) -> outtakespeed = n);
+
+}
+
 }

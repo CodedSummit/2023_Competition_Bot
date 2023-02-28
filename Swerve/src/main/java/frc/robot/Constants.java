@@ -104,6 +104,11 @@ public static final class InputSystemConstants {
   public static final int kInputMotorCANid = 7;
 }
 
+public static final class ArmSystemConstants {
+  public static final int kArmMotorCANid = 6;
+  public static final int kUpperLimitSwitchPort = 5;
+  public static final int kLowerLimitSwitchPort = 6;
+}
 //can id for arm motor 6
 
 }
