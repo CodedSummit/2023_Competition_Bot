@@ -90,10 +90,11 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public void zeroHeading() {
         gyro.reset();
+        
     }
 
     public double getHeading() {
-        return Math.IEEEremainder(gyro.getAngle()+90, 360);
+        return Math.IEEEremainder(gyro.getAngle(), 360); //TODO 90 offset here is a patch
     }
 
     public Rotation2d getRotation2d() {

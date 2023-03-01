@@ -14,7 +14,9 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Counter;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants.ArmSystemConstants;
 
 
@@ -29,7 +31,8 @@ public class ArmSubsystem extends SubsystemBase {
   private RelativeEncoder armEncoder;
 
   private SlewRateLimiter limiter;
-  private Double target;
+  private double target;
+  private boolean encoderCalibrated;
 
   public ArmSubsystem() {
 
@@ -37,37 +40,31 @@ public class ArmSubsystem extends SubsystemBase {
     armMotor.setIdleMode(IdleMode.kBrake);
     armEncoder = armMotor.getEncoder();
 
-    limiter = new SlewRateLimiter(0.5, -2, 0);
+    limiter = new SlewRateLimiter(0.5, -1, 0);
     target = 0.0;
     
   upperLimitSwitch = new DigitalInput(ArmSystemConstants.kUpperLimitSwitchPort);
 
   lowerLimitSwitch = new DigitalInput(ArmSystemConstants.kLowerLimitSwitchPort);
-  }
+  encoderCalibrated = false;
+  
+}
 
-  /**
-   * Example command factory method.
-   *
-   * @return a command
-   */
-  public CommandBase exampleMethodCommand() {
-    // Inline construction of command goes here.
-    // Subsystem::RunOnce implicitly requires `this` subsystem.
-    return runOnce(
-        () -> {
-          /* one-time action goes here */
-        });
-  }
 
   public boolean atUpperLimit(){
-    return upperLimitSwitch.get(); ///.get() > 0;
+    return upperLimitSwitch.get(); 
   }
   public boolean atLowerLimit(){
-    return lowerLimitSwitch.get(); //Counter.get() > 0;
+    return lowerLimitSwitch.get(); 
+  }
+
+  public boolean isCalibrated(){
+    return encoderCalibrated;
   }
 
   public void resetEncoder(){
     armEncoder.setPosition(0);
+    encoderCalibrated = true;
   }
 
   public double getPosition(){
@@ -77,17 +74,31 @@ public class ArmSubsystem extends SubsystemBase {
   public void Up(){
     if(!atUpperLimit()){
       target = 0.75;
-      //armMotor.set(0.25);
     }
   }
-
+  public void Up(double speed){
+    if(speed < 0){
+      return; //should throw an error
+    }
+    if(!atUpperLimit()){
+      target = speed;
+    }
+  }
+  
   public void Down(){
     if(!atLowerLimit()){
-      target = -0.25;
-      //armMotor.set(-0.1);
+      target = -0.5;
     }
   }
 
+  public void Down(double speed){
+    if(speed < 0){
+      return;
+    }
+    if(!atLowerLimit()){
+      target = 0-speed;
+    }
+  }
   public void stop(){
     target = 0.0;
   }
@@ -98,27 +109,43 @@ public class ArmSubsystem extends SubsystemBase {
 
   }
 
-  /**
-   * An example method querying a boolean state of the subsystem (for example, a digital sensor).
-   *
-   * @return value of some boolean subsystem state, such as a digital sensor.
-   */
-  public boolean exampleCondition() {
-    // Query some boolean state, such as a digital sensor.
-    return false;
-  }
-
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+
+    //prevent going the wrong direction when a limit switch is tripped.
     if(atUpperLimit() && armMotor.get() > 0){
       hardStop();
+      return;
     }
     if(atLowerLimit() && armMotor.get() < 0){
       hardStop();
+      return;
     }
 
-    armMotor.set(limiter.calculate(target));
+    //apply slew limiter
+    double limitedMove = limiter.calculate(target);
+
+
+    //TODO: limit speeds as limit switches are approached.
+    double lowerApproachSpeed = -0.1;
+    double lowerSpeedControlZone = 20;
+    if(getPosition() < lowerSpeedControlZone && limitedMove < 0){
+      if(limitedMove < lowerApproachSpeed){
+        limitedMove = lowerApproachSpeed;
+      }
+    }
+
+    double upperApproachSpeed = 0.2;
+    double upperSpeedControlZone = 325;
+    if(getPosition() > upperSpeedControlZone && limitedMove > 0){
+      if(limitedMove > upperApproachSpeed){
+        limitedMove = upperApproachSpeed;
+      }
+    }
+
+    //apply the limited motor movement.
+    armMotor.set(limitedMove);
     
   }
 
@@ -129,7 +156,6 @@ public class ArmSubsystem extends SubsystemBase {
 
   
   public void initSendable(SendableBuilder builder) {
-      // TODO Auto-generated method stub
       builder.addDoubleProperty("Power", () -> armMotor.get() , null);
       builder.addDoubleProperty("Position", () -> getPosition() , null);
       builder.addBooleanProperty("UpperLimit", () -> atUpperLimit() , null);

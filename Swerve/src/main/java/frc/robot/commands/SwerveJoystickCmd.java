@@ -21,8 +21,8 @@ public class SwerveJoystickCmd extends CommandBase {
 
     public SwerveJoystickCmd(SwerveSubsystem swerveSubsystem, CommandXboxController m_driverController) {
         this.swerveSubsystem = swerveSubsystem;
-        this.xSpdFunction = () -> m_driverController.getLeftX();
-        this.ySpdFunction = () -> -m_driverController.getLeftY();
+        this.xSpdFunction = () -> -m_driverController.getLeftY();
+        this.ySpdFunction = () -> -m_driverController.getLeftX();
         this.turningSpdFunction = () -> -m_driverController.getRightX();
         this.fieldOriented = true;
         this.xLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
