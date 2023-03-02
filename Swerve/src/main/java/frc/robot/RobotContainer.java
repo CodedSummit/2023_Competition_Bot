@@ -8,9 +8,12 @@ import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.ArmMoveToPosition;
 import frc.robot.commands.Autos;
 import frc.robot.commands.CalibrateArmCommand;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.IntakeCommand;
+import frc.robot.commands.SwerveFixedMoveCmd;
 import frc.robot.commands.SwerveJoystickCmd;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -107,6 +110,8 @@ public class RobotContainer {
       .onTrue(new InstantCommand(() -> swerveJoystickCmd.setFieldOriented(false)))
       .onFalse(new InstantCommand(() -> swerveJoystickCmd.setFieldOriented(true)));
 
+
+      
     m_driverController.b()
       .onTrue(new InstantCommand(() -> intakeSubsystem.InputIn()))
       .onFalse(new InstantCommand(() -> intakeSubsystem.stop()));
@@ -133,7 +138,20 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return new InstantCommand();
+    //return new InstantCommand();
+    return new SequentialCommandGroup(
+      new CalibrateArmCommand(armSubsystem),
+      new CalibrateArmCommand(armSubsystem),
+      new ArmMoveToPosition(armSubsystem, 334),
+      new SwerveFixedMoveCmd(swerveSubsystem, 0.0, -0.4, 1.7),
+      new IntakeCommand(intakeSubsystem, 1),
+      new SwerveFixedMoveCmd(swerveSubsystem, 0.0, 0.4, 1.0),
+      new ArmMoveToPosition(armSubsystem, 30),
+      new SwerveFixedMoveCmd(swerveSubsystem, 0.0, 1, 2)
+
+    );
+
+    //return new SwerveFixedMoveCmd(swerveSubsystem, 0.0, -0.3, 10.0);
     /*// 1. Create trajectory settings
     TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
       AutoConstants.kMaxSpeedMetersPerSecond,

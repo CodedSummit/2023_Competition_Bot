@@ -9,20 +9,23 @@ import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 /** An example command that uses an example subsystem. */
-public class CalibrateArmCommand extends CommandBase {
+public class ArmMoveToPosition extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final ArmSubsystem armSubsystem;
 
   private boolean lowerLimitFinalState;
+  private double target_position;
+  private boolean moving_up;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public CalibrateArmCommand(ArmSubsystem m_armSubsystem) {
+  public ArmMoveToPosition(ArmSubsystem m_armSubsystem, double arm_position) {
     armSubsystem = m_armSubsystem;
     // Use addRequirements() here to declare subsystem dependencies.
+    target_position = arm_position;
     addRequirements(armSubsystem);
   }
 
@@ -30,13 +33,14 @@ public class CalibrateArmCommand extends CommandBase {
   @Override
   public void initialize() {
     //move arm
-    if(armSubsystem.atLowerLimit()){
-      lowerLimitFinalState = false;
-      armSubsystem.Up(0.25);
+    if(armSubsystem.getPosition() > target_position){
+      armSubsystem.Down(0.5);
+      moving_up = false;
     } else {
-      lowerLimitFinalState = true;
-      armSubsystem.Down(0.05);
+      armSubsystem.Up(0.75);
+      moving_up = true;
     }
+
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -48,15 +52,16 @@ public class CalibrateArmCommand extends CommandBase {
   public void end(boolean interrupted) {
     //stops arm
     armSubsystem.stop();
-    if(!interrupted){
-      armSubsystem.resetEncoder();
-    }
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     //test limit switch
-    return armSubsystem.atLowerLimit() == lowerLimitFinalState;
+    if(moving_up){
+      return armSubsystem.getPosition() >= target_position;
+    } else {
+      return armSubsystem.getPosition() <= target_position;
+    }
   }
 }

@@ -4,39 +4,36 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 /** An example command that uses an example subsystem. */
-public class CalibrateArmCommand extends CommandBase {
+public class IntakeCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final ArmSubsystem armSubsystem;
+  private final IntakeSubsystem m_subsystem;
 
-  private boolean lowerLimitFinalState;
+  private double runSeconds;
+  double timeoutExpires;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public CalibrateArmCommand(ArmSubsystem m_armSubsystem) {
-    armSubsystem = m_armSubsystem;
+  public IntakeCommand(IntakeSubsystem subsystem, double run_seconds) {
+    m_subsystem = subsystem;
+    this.runSeconds = run_seconds;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(armSubsystem);
+    addRequirements(subsystem);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    //move arm
-    if(armSubsystem.atLowerLimit()){
-      lowerLimitFinalState = false;
-      armSubsystem.Up(0.25);
-    } else {
-      lowerLimitFinalState = true;
-      armSubsystem.Down(0.05);
-    }
+    timeoutExpires = Timer.getFPGATimestamp() + runSeconds;
+    m_subsystem.InputIn();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -46,17 +43,12 @@ public class CalibrateArmCommand extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    //stops arm
-    armSubsystem.stop();
-    if(!interrupted){
-      armSubsystem.resetEncoder();
-    }
+    m_subsystem.stop();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    //test limit switch
-    return armSubsystem.atLowerLimit() == lowerLimitFinalState;
+    return Timer.getFPGATimestamp() > timeoutExpires;
   }
 }
