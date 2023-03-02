@@ -82,7 +82,7 @@ public static final class DriveConstants {
   public static final double kPhysicalMaxSpeedMetersPerSecond = 5;
   public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = 2 * 2 * Math.PI;
 
-  public static final double kTeleDriveMaxSpeedMetersPerSecond = kPhysicalMaxSpeedMetersPerSecond / 3; //2 is fast, 4 is slow
+  public static final double kTeleDriveMaxSpeedMetersPerSecond = kPhysicalMaxSpeedMetersPerSecond / 2; //2 is fast, 4 is slow
   public static final double kTeleDriveMaxAngularSpeedRadiansPerSecond = //
           kPhysicalMaxAngularSpeedRadiansPerSecond / 4;
   public static final double kTeleDriveMaxAccelerationUnitsPerSecond = 3;

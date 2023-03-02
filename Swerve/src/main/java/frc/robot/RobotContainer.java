@@ -18,6 +18,7 @@ import frc.robot.commands.SwerveJoystickCmd;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.SwerveSubsystem;
 
 import java.util.List;
@@ -110,8 +111,10 @@ public class RobotContainer {
       .onTrue(new InstantCommand(() -> swerveJoystickCmd.setFieldOriented(false)))
       .onFalse(new InstantCommand(() -> swerveJoystickCmd.setFieldOriented(true)));
 
+    m_driverController.rightBumper()
+      .onTrue(new InstantCommand(() -> swerveJoystickCmd.setMotionScale(0.3)))
+      .onFalse(new InstantCommand(() -> swerveJoystickCmd.setMotionScale(1.0)));
 
-      
     m_driverController.b()
       .onTrue(new InstantCommand(() -> intakeSubsystem.InputIn()))
       .onFalse(new InstantCommand(() -> intakeSubsystem.stop()));

@@ -18,6 +18,7 @@ public class SwerveJoystickCmd extends CommandBase {
     private final SlewRateLimiter xLimiter, yLimiter, turningLimiter;
 
     private boolean fieldOriented;
+    private double motionScale;
 
     public SwerveJoystickCmd(SwerveSubsystem swerveSubsystem, CommandXboxController m_driverController) {
         this.swerveSubsystem = swerveSubsystem;
@@ -25,6 +26,7 @@ public class SwerveJoystickCmd extends CommandBase {
         this.ySpdFunction = () -> -m_driverController.getLeftX();
         this.turningSpdFunction = () -> -m_driverController.getRightX();
         this.fieldOriented = true;
+        this.motionScale = 1.0;
         this.xLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
         this.yLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
         this.turningLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAngularAccelerationUnitsPerSecond);
@@ -39,9 +41,9 @@ public class SwerveJoystickCmd extends CommandBase {
     @Override
     public void execute() {
         // 1. Get real-time joystick inputs
-        double xSpeed = xSpdFunction.get();
-        double ySpeed = ySpdFunction.get();
-        double turningSpeed = turningSpdFunction.get();
+        double xSpeed = xSpdFunction.get() * this.motionScale;
+        double ySpeed = ySpdFunction.get() * this.motionScale;
+        double turningSpeed = turningSpdFunction.get() * this.motionScale;
 
         // 2. Apply deadband
         xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed : 0.0;
@@ -85,5 +87,9 @@ public class SwerveJoystickCmd extends CommandBase {
     @Override
     public boolean isFinished() {
         return false;
+    }
+
+    public void setMotionScale(double d) {
+        this.motionScale = d;
     }
 }

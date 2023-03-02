@@ -137,7 +137,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     double upperApproachSpeed = 0.2;
-    double upperSpeedControlZone = 325;
+    double upperSpeedControlZone = 315;
     if(getPosition() > upperSpeedControlZone && limitedMove > 0){
       if(limitedMove > upperApproachSpeed){
         limitedMove = upperApproachSpeed;
