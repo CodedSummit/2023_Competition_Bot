@@ -34,10 +34,10 @@ public class ArmMoveToPosition extends CommandBase {
   public void initialize() {
     //move arm
     if(armSubsystem.getPosition() > target_position){
-      armSubsystem.Down(0.5);
+      armSubsystem.Down(0.75);
       moving_up = false;
     } else {
-      armSubsystem.Up(0.75);
+      armSubsystem.Up(1);
       moving_up = true;
     }
 

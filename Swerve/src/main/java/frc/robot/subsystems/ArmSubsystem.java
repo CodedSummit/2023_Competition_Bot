@@ -40,7 +40,7 @@ public class ArmSubsystem extends SubsystemBase {
     armMotor.setIdleMode(IdleMode.kBrake);
     armEncoder = armMotor.getEncoder();
 
-    limiter = new SlewRateLimiter(0.5, -1, 0);
+    limiter = new SlewRateLimiter(0.75, -1.5, 0);
     target = 0.0;
     
   upperLimitSwitch = new DigitalInput(ArmSystemConstants.kUpperLimitSwitchPort);
@@ -73,7 +73,7 @@ public class ArmSubsystem extends SubsystemBase {
 
   public void Up(){
     if(!atUpperLimit()){
-      target = 0.75;
+      target = 1;
     }
   }
   public void Up(double speed){
@@ -87,7 +87,7 @@ public class ArmSubsystem extends SubsystemBase {
   
   public void Down(){
     if(!atLowerLimit()){
-      target = -0.5;
+      target = -0.75;
     }
   }
 
@@ -128,8 +128,8 @@ public class ArmSubsystem extends SubsystemBase {
 
 
     //TODO: limit speeds as limit switches are approached.
-    double lowerApproachSpeed = -0.1;
-    double lowerSpeedControlZone = 20;
+    double lowerApproachSpeed = -0.2;
+    double lowerSpeedControlZone = 30;
     if(getPosition() < lowerSpeedControlZone && limitedMove < 0){
       if(limitedMove < lowerApproachSpeed){
         limitedMove = lowerApproachSpeed;
@@ -137,7 +137,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     double upperApproachSpeed = 0.2;
-    double upperSpeedControlZone = 315;
+    double upperSpeedControlZone = 305;
     if(getPosition() > upperSpeedControlZone && limitedMove > 0){
       if(limitedMove > upperApproachSpeed){
         limitedMove = upperApproachSpeed;

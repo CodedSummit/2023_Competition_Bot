@@ -145,12 +145,13 @@ public class RobotContainer {
     return new SequentialCommandGroup(
       new CalibrateArmCommand(armSubsystem),
       new CalibrateArmCommand(armSubsystem),
-      new ArmMoveToPosition(armSubsystem, 334),
+      new ArmMoveToPosition(armSubsystem, 323),
       new SwerveFixedMoveCmd(swerveSubsystem, 0.0, -0.4, 1.7),
       new IntakeCommand(intakeSubsystem, 1),
       new SwerveFixedMoveCmd(swerveSubsystem, 0.0, 0.4, 1.0),
-      new ArmMoveToPosition(armSubsystem, 30),
-      new SwerveFixedMoveCmd(swerveSubsystem, 0.0, 1, 2)
+      new ArmMoveToPosition(armSubsystem, 20),
+      new SwerveFixedMoveCmd(swerveSubsystem, 0.0, 1, 1.4),
+      new SwerveFixedMoveCmd(swerveSubsystem, 1, 0, .1)
 
     );
 
