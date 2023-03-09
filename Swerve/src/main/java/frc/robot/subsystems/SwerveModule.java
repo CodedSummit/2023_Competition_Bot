@@ -16,6 +16,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -87,7 +88,12 @@ public class SwerveModule implements Sendable {
 
     public double getDrivePosition() {
         //return driveEncoder.getPosition();
-        return driveTalonFX.getSelectedSensorPosition();
+        //return driveTalonFX.getSelectedSensorPosition() / 2048;
+
+        return (driveTalonFX.getSelectedSensorPosition() / 2048)
+            * ModuleConstants.kDriveEncoderRot2Meter;
+
+
     }
 
     public double getTurningPosition() {
@@ -102,9 +108,9 @@ public class SwerveModule implements Sendable {
 
     public double getDriveVelocity() {
         //return driveEncoder.getVelocity();
-        return driveTalonFX.getSelectedSensorVelocity(); // / 2048 * Units.millisecondsToSeconds(100)
+        return (driveTalonFX.getSelectedSensorVelocity() / 2048) 
+         * ModuleConstants.kDriveEncoderRPM2MeterPerSec;
     }
-
     public double getTurningVelocity() {
         return turningEncoder.getVelocity();
     }

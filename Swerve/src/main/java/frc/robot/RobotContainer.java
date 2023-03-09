@@ -131,6 +131,9 @@ public class RobotContainer {
       .onTrue(new InstantCommand(() -> armSubsystem.Down()))
       .onFalse(new InstantCommand(() -> armSubsystem.stop()));
 
+      m_driverController.povLeft()
+      .onTrue(new InstantCommand(() -> swerveSubsystem.resetOdometry(new Pose2d())));
+
       m_driverController.a()
       .onTrue(new CalibrateArmCommand(armSubsystem));
   }

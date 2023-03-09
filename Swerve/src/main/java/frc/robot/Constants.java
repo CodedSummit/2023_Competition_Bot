@@ -22,7 +22,7 @@ public final class Constants {
   }
 
   public static final class ModuleConstants {
-    public static final double kWheelDiameterMeters = Units.inchesToMeters(4);
+    public static final double kWheelDiameterMeters = Units.inchesToMeters(3.95);
     public static final double kDriveMotorGearRatio = 1 / 7.13;
     public static final double kTurningMotorGearRatio = 1; //disabled per absolute encoder    1 / 18.0;
     public static final double kDriveEncoderRot2Meter = kDriveMotorGearRatio * Math.PI * kWheelDiameterMeters;
