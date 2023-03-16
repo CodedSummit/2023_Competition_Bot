@@ -16,6 +16,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.commands.SwerveXPark;
 
 public class SwerveSubsystem extends SubsystemBase {
     private final SwerveModule frontLeft = new SwerveModule(
@@ -59,11 +60,14 @@ public class SwerveSubsystem extends SubsystemBase {
     private final SwerveDriveOdometry odometer = new SwerveDriveOdometry(DriveConstants.kDriveKinematics,
             new Rotation2d(0), getModulePositions());
 
+    private double yTiltOffset;
+
     public SwerveSubsystem() {
         new Thread(() -> {
             try {
                 Thread.sleep(1000);
                 zeroHeading();
+                zeroYTilt();
             } catch (Exception e) {
             }
         }).start();
@@ -71,13 +75,14 @@ public class SwerveSubsystem extends SubsystemBase {
 
         ShuffleboardTab swerveTab = Shuffleboard.getTab("Swerve");
         swerveTab.add("Front Left", frontLeft)
-            .withSize(2,1);
+            .withSize(2,2);
         swerveTab.add("Front Right", frontRight)
-            .withSize(2,1);
+            .withSize(2,2);
         swerveTab.add("Back Right", backRight)
-            .withSize(2,1);
+            .withSize(2,2);
         swerveTab.add("Back Left", backLeft)
-            .withSize(2,1);
+            .withSize(2,2);
+        
     }
 
 
@@ -93,8 +98,25 @@ public class SwerveSubsystem extends SubsystemBase {
         
     }
 
+    public double xTilt() {
+        return gyro.getXFilteredAccelAngle();
+    }
+    public double yTilt(){ //front back
+        //15 degrees max
+        double yAngle = gyro.getYFilteredAccelAngle() - yTiltOffset;
+        //convert to negative number of tilted the other way
+        if(yAngle > 180){
+            yAngle -= 360;
+        }
+        return yAngle;
+
+    }
+    public void zeroYTilt(){
+        yTiltOffset = gyro.getYFilteredAccelAngle();
+    }
+
     public double getHeading() {
-        return Math.IEEEremainder(gyro.getAngle(), 360); //TODO 90 offset here is a patch
+        return Math.IEEEremainder(gyro.getAngle(), 360); 
     }
 
     public Rotation2d getRotation2d() {
@@ -119,6 +141,8 @@ public class SwerveSubsystem extends SubsystemBase {
         odometer.update(getRotation2d(), getModulePositions());
         SmartDashboard.putNumber("Robot Heading", getHeading());
         SmartDashboard.putString("Robot Location", getPose().getTranslation().toString());
+        //SmartDashboard.putNumber("X Tilt", xTilt());
+        SmartDashboard.putNumber("Y Tilt", yTilt());
     }
 
     public void stopModules() {

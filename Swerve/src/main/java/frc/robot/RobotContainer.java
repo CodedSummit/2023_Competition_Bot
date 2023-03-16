@@ -13,8 +13,10 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.CalibrateArmCommand;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.IntakeCommand;
+import frc.robot.commands.SwerveBalanceFwdBack;
 import frc.robot.commands.SwerveFixedMoveCmd;
 import frc.robot.commands.SwerveJoystickCmd;
+import frc.robot.commands.SwerveXPark;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -34,6 +36,7 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -56,6 +59,8 @@ public class RobotContainer {
   private final ArmSubsystem armSubsystem = new ArmSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
+  private final CommandJoystick m_joystickController =
+    new CommandJoystick(1);
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
   //private final Joystick driverJoystick = new Joystick(OIConstants.kDriverControllerPort);
@@ -75,6 +80,14 @@ public class RobotContainer {
         .withSize(2,2);
     armTab.add("Intake", intakeSubsystem)
         .withSize(2,2);
+    armTab.add(new CalibrateArmCommand(armSubsystem));
+
+    ShuffleboardTab swerveTab = Shuffleboard.getTab("Swerve");
+
+    swerveTab.add(new SwerveXPark(swerveSubsystem));
+
+    SmartDashboard.putData("Balance", new SwerveBalanceFwdBack(swerveSubsystem));
+    SmartDashboard.putData(swerveSubsystem);
 
 //TODO: calibrate subsystem on robot start.
 
@@ -132,10 +145,17 @@ public class RobotContainer {
       .onFalse(new InstantCommand(() -> armSubsystem.stop()));
 
       m_driverController.povLeft()
-      .onTrue(new InstantCommand(() -> swerveSubsystem.resetOdometry(new Pose2d())));
+      .onTrue(new ArmMoveToPosition(armSubsystem, 323));
+
+      m_driverController.povRight()
+      .onTrue(new ArmMoveToPosition(armSubsystem, 10));
 
       m_driverController.a()
-      .onTrue(new CalibrateArmCommand(armSubsystem));
+      .onTrue(new SwerveXPark(swerveSubsystem));
+
+      m_driverController.axisGreaterThan(2, 0.5)
+      .whileTrue(new SwerveBalanceFwdBack(swerveSubsystem));
+
   }
 
   /**

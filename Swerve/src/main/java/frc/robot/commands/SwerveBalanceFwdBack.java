@@ -4,31 +4,31 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
-import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
-public class SwerveJoystickCmd extends CommandBase {
+public class SwerveBalanceFwdBack extends CommandBase {
 
     private final SwerveSubsystem swerveSubsystem;
-
     private final Supplier<Double> xSpdFunction, ySpdFunction, turningSpdFunction;
     private final SlewRateLimiter xLimiter, yLimiter, turningLimiter;
 
     private boolean fieldOriented;
-    private double motionScale;
+    private double runSeconds;
+    double timeoutExpires;
 
-    public SwerveJoystickCmd(SwerveSubsystem swerveSubsystem, CommandXboxController m_driverController) {
+    public SwerveBalanceFwdBack(SwerveSubsystem swerveSubsystem) {
         this.swerveSubsystem = swerveSubsystem;
-        this.xSpdFunction = () -> -m_driverController.getLeftY();
-        this.ySpdFunction = () -> -m_driverController.getLeftX();
-        this.turningSpdFunction = () -> -m_driverController.getRightX();
-        this.fieldOriented = true;
-        this.motionScale = 1.0;
+        this.xSpdFunction = () -> 0.0;
+        this.ySpdFunction = () -> 0.0;
+        this.turningSpdFunction = () -> 0.0;
+        this.fieldOriented = false;
+        //this.runSeconds = run_seconds;
         this.xLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
         this.yLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
         this.turningLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAngularAccelerationUnitsPerSecond);
@@ -38,14 +38,33 @@ public class SwerveJoystickCmd extends CommandBase {
 
     @Override
     public void initialize() {
+        timeoutExpires = Timer.getFPGATimestamp() + runSeconds;
     }
 
     @Override
     public void execute() {
+        //decide fwd back based on gyro
+        double angle = swerveSubsystem.yTilt();
+        double xSpeed = 0;
+        double ySpeed = 0;
+        if(Math.abs(angle) < 2 ){
+            //balanced. do nothing, or lock wheels?
+            xSpeed = 0;
+            
+        } else if(angle > 0){
+            //drive fwd?
+            xSpeed = -0.4;
+        } else if(angle < 0){
+            //drive backward?
+            xSpeed = 0.4;
+        }
+
+        
+        
         // 1. Get real-time joystick inputs
-        double xSpeed = xSpdFunction.get() * this.motionScale;
-        double ySpeed = ySpdFunction.get() * this.motionScale;
-        double turningSpeed = turningSpdFunction.get() * this.motionScale;
+        //double xSpeed = xSpdFunction.get();
+        //double ySpeed = ySpdFunction.get();
+        double turningSpeed = 0; //turningSpdFunction.get();
 
         // 2. Apply deadband
         xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed : 0.0;
@@ -89,9 +108,5 @@ public class SwerveJoystickCmd extends CommandBase {
     @Override
     public boolean isFinished() {
         return false;
-    }
-
-    public void setMotionScale(double d) {
-        this.motionScale = d;
     }
 }
