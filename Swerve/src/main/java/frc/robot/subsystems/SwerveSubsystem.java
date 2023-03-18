@@ -4,8 +4,12 @@ import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 //import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+
+import java.util.Map;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -13,6 +17,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
@@ -62,6 +69,11 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private double yTiltOffset;
 
+    private GenericEntry turboSpeedFactor;
+    private GenericEntry normalSpeedFactor;
+    private GenericEntry dampenedSpeedFactor;
+
+
     public SwerveSubsystem() {
         new Thread(() -> {
             try {
@@ -79,10 +91,36 @@ public class SwerveSubsystem extends SubsystemBase {
         swerveTab.add("Front Right", frontRight)
             .withSize(2,2);
         swerveTab.add("Back Right", backRight)
-            .withSize(2,2);
+            .withSize(2,2)
+            .withPosition(0, 2);
         swerveTab.add("Back Left", backLeft)
-            .withSize(2,2);
-        
+            .withSize(2,2)
+            .withPosition(2, 2);
+
+        turboSpeedFactor = swerveTab.add("Turbo Percentage", 0.9)
+            .withWidget(BuiltInWidgets.kNumberSlider) // specify the widget here
+            .withProperties(Map.of("min", 0, "max", 1)) // specify widget properties here
+            .getEntry();
+
+        normalSpeedFactor = swerveTab.add("Normal Percentage", .5)
+            .withWidget(BuiltInWidgets.kNumberSlider) // specify the widget here
+            .withProperties(Map.of("min", 0, "max", 1)) // specify widget properties here
+            .getEntry();
+ 
+        dampenedSpeedFactor = swerveTab.add("Dampened Percentage", .2)
+            .withWidget(BuiltInWidgets.kNumberSlider) // specify the widget here
+            .withProperties(Map.of("min", 0, "max", 1)) // specify widget properties here
+            .getEntry();
+    }
+
+    public double getTurboSpeedFactor(){
+        return turboSpeedFactor.getDouble(1.0);
+    }
+    public double getNormalSpeedFactor(){
+        return normalSpeedFactor.getDouble(0.5);
+    }
+    public double getDampenedSpeedFactor(){
+        return dampenedSpeedFactor.getDouble(0.2);
     }
 
 
@@ -158,5 +196,13 @@ public class SwerveSubsystem extends SubsystemBase {
         frontRight.setDesiredState(desiredStates[1]);
         backLeft.setDesiredState(desiredStates[2]);
         backRight.setDesiredState(desiredStates[3]);
+    }
+
+
+    @Override
+    public void initSendable(SendableBuilder builder) {
+        // TODO Auto-generated method stub
+        super.initSendable(builder);
+
     }
 }

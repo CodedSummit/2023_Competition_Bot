@@ -125,8 +125,12 @@ public class RobotContainer {
       .onFalse(new InstantCommand(() -> swerveJoystickCmd.setFieldOriented(true)));
 
     m_driverController.rightBumper()
-      .onTrue(new InstantCommand(() -> swerveJoystickCmd.setMotionScale(0.3)))
-      .onFalse(new InstantCommand(() -> swerveJoystickCmd.setMotionScale(1.0)));
+      .onTrue(new InstantCommand(() -> swerveJoystickCmd.setMotionScale(swerveSubsystem.getDampenedSpeedFactor())))
+      .onFalse(new InstantCommand(() -> swerveJoystickCmd.setMotionScale(swerveSubsystem.getNormalSpeedFactor())));
+
+    m_driverController.axisGreaterThan(3, 0.5)
+      .onTrue(new InstantCommand(() -> swerveJoystickCmd.setMotionScale(swerveSubsystem.getTurboSpeedFactor())))
+      .onFalse(new InstantCommand(() -> swerveJoystickCmd.setMotionScale(swerveSubsystem.getNormalSpeedFactor())));
 
     m_driverController.b()
       .onTrue(new InstantCommand(() -> intakeSubsystem.InputIn()))
@@ -152,9 +156,6 @@ public class RobotContainer {
 
       m_driverController.a()
       .onTrue(new SwerveXPark(swerveSubsystem));
-
-      m_driverController.axisGreaterThan(2, 0.5)
-      .whileTrue(new SwerveBalanceFwdBack(swerveSubsystem));
 
   }
 
