@@ -17,7 +17,7 @@ import frc.robot.commands.SwerveBalanceFwdBack;
 import frc.robot.commands.SwerveFixedMoveCmd;
 import frc.robot.commands.SwerveJoystickCmd;
 import frc.robot.commands.SwerveXPark;
-import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.PIDArmSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.SwerveModule;
@@ -56,11 +56,10 @@ public class RobotContainer {
   private final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
 
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
-  private final ArmSubsystem armSubsystem = new ArmSubsystem();
+  private final PIDArmSubsystem armSubsystem = new PIDArmSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandJoystick m_joystickController =
-    new CommandJoystick(1);
+
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
   //private final Joystick driverJoystick = new Joystick(OIConstants.kDriverControllerPort);
@@ -80,7 +79,7 @@ public class RobotContainer {
         .withSize(2,2);
     armTab.add("Intake", intakeSubsystem)
         .withSize(2,2);
-    armTab.add(new CalibrateArmCommand(armSubsystem));
+    //armTab.add(new CalibrateArmCommand(armSubsystem));
 
     ShuffleboardTab swerveTab = Shuffleboard.getTab("Swerve");
 
@@ -149,10 +148,10 @@ public class RobotContainer {
       .onFalse(new InstantCommand(() -> armSubsystem.stop()));
 
       m_driverController.povLeft()
-      .onTrue(new ArmMoveToPosition(armSubsystem, 323));
+      .onTrue(new InstantCommand(() -> armSubsystem.setGoal(344)));
 
       m_driverController.povRight()
-      .onTrue(new ArmMoveToPosition(armSubsystem, 10));
+      .onTrue(new InstantCommand(() -> armSubsystem.setGoal(10)));
 
       m_driverController.a()
       .onTrue(new SwerveXPark(swerveSubsystem));
@@ -167,8 +166,8 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     //return new InstantCommand();
     return new SequentialCommandGroup(
-      new CalibrateArmCommand(armSubsystem),
-      new CalibrateArmCommand(armSubsystem),
+      //new CalibrateArmCommand(armSubsystem),
+      //new CalibrateArmCommand(armSubsystem),
       new ArmMoveToPosition(armSubsystem, 323),
       new SwerveFixedMoveCmd(swerveSubsystem, 0.0, -0.4, 1.7),
       new IntakeCommand(intakeSubsystem, 1),

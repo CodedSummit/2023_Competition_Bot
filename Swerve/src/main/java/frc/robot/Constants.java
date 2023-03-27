@@ -108,6 +108,10 @@ public static final class ArmSystemConstants {
   public static final int kArmMotorCANid = 6;
   public static final int kUpperLimitSwitchPort = 5;
   public static final int kLowerLimitSwitchPort = 6;
+  public static final double kP = 0.1;
+  public static final double kMaxVelocityUnitsPerSecond = 200;
+  public static final double kMaxAccelerationUnitsPerSecSquared = 250;
+  public static final double kArmOffsetUnits = 0;
 }
 
 public static final class AutoConstants {

@@ -46,11 +46,11 @@ public class SwerveXPark extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        swerveSubsystem.stopModules();
+        //swerveSubsystem.stopModules();
     }
 
     @Override
     public boolean isFinished() {
-        return true;
+        return false;
     }
 }

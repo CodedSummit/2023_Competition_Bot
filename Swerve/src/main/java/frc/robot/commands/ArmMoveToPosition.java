@@ -6,12 +6,13 @@ package frc.robot.commands;
 
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.PIDArmSubsystem;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 /** An example command that uses an example subsystem. */
 public class ArmMoveToPosition extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final ArmSubsystem armSubsystem;
+  private final PIDArmSubsystem armSubsystem;
 
   private boolean lowerLimitFinalState;
   private double target_position;
@@ -22,7 +23,7 @@ public class ArmMoveToPosition extends CommandBase {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ArmMoveToPosition(ArmSubsystem m_armSubsystem, double arm_position) {
+  public ArmMoveToPosition(PIDArmSubsystem m_armSubsystem, double arm_position) {
     armSubsystem = m_armSubsystem;
     // Use addRequirements() here to declare subsystem dependencies.
     target_position = arm_position;
@@ -33,13 +34,14 @@ public class ArmMoveToPosition extends CommandBase {
   @Override
   public void initialize() {
     //move arm
-    if(armSubsystem.getPosition() > target_position){
+    armSubsystem.setGoal(target_position);
+    /*if(armSubsystem.getPosition() > target_position){
       armSubsystem.Down(0.75);
       moving_up = false;
     } else {
       armSubsystem.Up(1);
       moving_up = true;
-    }
+    }*/
 
   }
 
