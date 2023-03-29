@@ -2,21 +2,14 @@ package frc.robot.subsystems;
 
 //import com.revrobotics.CANEncoder;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxAnalogSensor;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.DigitalSource;
-import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Preferences;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -24,9 +17,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.ctre.phoenix.sensors.CANCoder;
 
 public class SwerveModule implements Sendable {
     private final TalonFX driveTalonFX;

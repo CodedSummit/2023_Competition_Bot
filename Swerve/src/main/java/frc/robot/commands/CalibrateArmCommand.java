@@ -6,12 +6,13 @@ package frc.robot.commands;
 
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.PIDArmSubsystem;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 /** An example command that uses an example subsystem. */
 public class CalibrateArmCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final ArmSubsystem armSubsystem;
+  private final PIDArmSubsystem armSubsystem;
 
   private boolean lowerLimitFinalState;
 
@@ -20,7 +21,7 @@ public class CalibrateArmCommand extends CommandBase {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public CalibrateArmCommand(ArmSubsystem m_armSubsystem) {
+  public CalibrateArmCommand(PIDArmSubsystem m_armSubsystem) {
     armSubsystem = m_armSubsystem;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(armSubsystem);
@@ -30,12 +31,13 @@ public class CalibrateArmCommand extends CommandBase {
   @Override
   public void initialize() {
     //move arm
+    armSubsystem.disable(); //disable PID
     if(armSubsystem.atLowerLimit()){
       lowerLimitFinalState = false;
-      armSubsystem.Up(0.25);
+      armSubsystem.RawUp(0.25);
     } else {
       lowerLimitFinalState = true;
-      armSubsystem.Down(0.05);
+      armSubsystem.RawDown(0.07);
     }
   }
 
@@ -47,9 +49,11 @@ public class CalibrateArmCommand extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     //stops arm
-    armSubsystem.stop();
+    armSubsystem.hardStop();
     if(!interrupted){
       armSubsystem.resetEncoder();
+      //Turn PID back on
+      armSubsystem.enable();
     }
   }
 

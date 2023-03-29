@@ -81,6 +81,7 @@ public class Robot extends TimedRobot {
     }
 
     m_robotContainer.loadPreferences();
+    m_robotContainer.runStartupCalibration();
   }
 
   /** This function is called periodically during operator control. */

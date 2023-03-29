@@ -24,7 +24,7 @@ public class PIDArmSubsystem extends ProfiledPIDSubsystem {
 
     private double currentOutput;
 
-    private double maxPosition = 350;
+    private double maxPosition = 343;
 
     private DigitalInput upperLimitSwitch;
     private DigitalInput lowerLimitSwitch;
@@ -94,11 +94,12 @@ public class PIDArmSubsystem extends ProfiledPIDSubsystem {
   
   public void Down(){
     if(!atLowerLimit()){
-      setGoal(20);
+      setGoal(10);
     }
   }
 
   public void stop(){
+    this.
     setGoal(getPosition());
   }
 
@@ -106,7 +107,23 @@ public class PIDArmSubsystem extends ProfiledPIDSubsystem {
     armMotor.stopMotor();
   }
 
+  public void RawUp(double speed){
+    if(speed < 0){
+      return; //should throw an error
+    }
+    if(!atUpperLimit()){
+      armMotor.set(speed);
+    }
+  }
 
+  public void RawDown(double speed){
+    if(speed < 0){
+      return;
+    }
+    if(!atLowerLimit()){
+      armMotor.set(0-speed);
+    }
+  }
 
 
   @Override
@@ -114,6 +131,10 @@ public class PIDArmSubsystem extends ProfiledPIDSubsystem {
     // Calculate the feedforward from the sepoint
     //double feedforward = m_feedforward.calculate(setpoint.position, setpoint.velocity);
     // Add the feedforward to the PID output to get the motor output
+
+    /*if(output < 0.05){
+      output = 0;
+    }*/
 
     if(output > 0 && atUpperLimit()){
         armMotor.set(0);

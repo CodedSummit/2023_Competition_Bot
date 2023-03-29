@@ -4,37 +4,31 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
-import frc.robot.subsystems.ArmDistanceSubsystem;
-import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.PIDArmSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
-public class SwerveJoystickCmd extends CommandBase {
+public class SwerveFixedMoveTillTiltCmd extends CommandBase {
 
     private final SwerveSubsystem swerveSubsystem;
-    private final PIDArmSubsystem armSubsystem;
-    private final ArmDistanceSubsystem armDistanceSubsystem;
-
     private final Supplier<Double> xSpdFunction, ySpdFunction, turningSpdFunction;
     private final SlewRateLimiter xLimiter, yLimiter, turningLimiter;
 
     private boolean fieldOriented;
-    private double motionScale;
+    private double runSeconds;
+    double timeoutExpires;
 
-    public SwerveJoystickCmd(SwerveSubsystem swerveSubsystem, CommandXboxController m_driverController, PIDArmSubsystem armSubsystem, ArmDistanceSubsystem armDistanceSubsystem) {
+    public SwerveFixedMoveTillTiltCmd(SwerveSubsystem swerveSubsystem, double joystick_x, double joystick_y, double max_run_seconds) {
         this.swerveSubsystem = swerveSubsystem;
-        this.armSubsystem = armSubsystem;
-        this.armDistanceSubsystem = armDistanceSubsystem;
-        this.xSpdFunction = () -> -m_driverController.getLeftY();
-        this.ySpdFunction = () -> -m_driverController.getLeftX();
-        this.turningSpdFunction = () -> -m_driverController.getRightX();
-        this.fieldOriented = true;
-        this.motionScale = 1.0;
+        this.xSpdFunction = () -> -joystick_y;
+        this.ySpdFunction = () -> -joystick_x;
+        this.turningSpdFunction = () -> 0.0;
+        this.fieldOriented = false;
+        this.runSeconds = max_run_seconds;
         this.xLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
         this.yLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
         this.turningLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAngularAccelerationUnitsPerSecond);
@@ -44,21 +38,15 @@ public class SwerveJoystickCmd extends CommandBase {
 
     @Override
     public void initialize() {
+        timeoutExpires = Timer.getFPGATimestamp() + runSeconds;
     }
 
     @Override
     public void execute() {
-        // Calcualte motionscale based on arm up and proximity close
-        //check ignore status?
-        double effectiveMotionScale = this.motionScale;
-        if(armSubsystem.getPosition() > 100 && armDistanceSubsystem.distance_cm() < 250){
-            effectiveMotionScale = swerveSubsystem.getDampenedSpeedFactor();
-        }
-        
         // 1. Get real-time joystick inputs
-        double xSpeed = xSpdFunction.get() * effectiveMotionScale;
-        double ySpeed = ySpdFunction.get() * effectiveMotionScale;
-        double turningSpeed = turningSpdFunction.get() * effectiveMotionScale;
+        double xSpeed = xSpdFunction.get();
+        double ySpeed = ySpdFunction.get();
+        double turningSpeed = turningSpdFunction.get();
 
         // 2. Apply deadband
         xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed : 0.0;
@@ -101,10 +89,7 @@ public class SwerveJoystickCmd extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return false;
-    }
-
-    public void setMotionScale(double d) {
-        this.motionScale = d;
+        double angle = Math.abs(swerveSubsystem.yTilt());
+        return (angle > 5) || (Timer.getFPGATimestamp() > timeoutExpires);
     }
 }

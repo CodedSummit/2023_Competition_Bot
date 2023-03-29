@@ -18,6 +18,7 @@ import frc.robot.commands.SwerveFixedMoveCmd;
 import frc.robot.commands.SwerveJoystickCmd;
 import frc.robot.commands.SwerveXPark;
 import frc.robot.subsystems.PIDArmSubsystem;
+import frc.robot.subsystems.ArmDistanceSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.SwerveModule;
@@ -36,9 +37,11 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
@@ -57,6 +60,7 @@ public class RobotContainer {
 
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final PIDArmSubsystem armSubsystem = new PIDArmSubsystem();
+  private final ArmDistanceSubsystem armDistanceSubsystem = new ArmDistanceSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
 
@@ -65,13 +69,17 @@ public class RobotContainer {
   //private final Joystick driverJoystick = new Joystick(OIConstants.kDriverControllerPort);
   private SwerveJoystickCmd swerveJoystickCmd;
 
+  SendableChooser<Command> m_auto_chooser;
+
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
  
     swerveJoystickCmd = new SwerveJoystickCmd(
       swerveSubsystem,
-      m_driverController);
+      m_driverController,
+      armSubsystem,
+      armDistanceSubsystem);
     swerveSubsystem.setDefaultCommand(swerveJoystickCmd); 
 
     ShuffleboardTab armTab = Shuffleboard.getTab("Arm");
@@ -79,7 +87,8 @@ public class RobotContainer {
         .withSize(2,2);
     armTab.add("Intake", intakeSubsystem)
         .withSize(2,2);
-    //armTab.add(new CalibrateArmCommand(armSubsystem));
+    armTab.add(new CalibrateArmCommand(armSubsystem));
+    armTab.add("Distance", armDistanceSubsystem);
 
     ShuffleboardTab swerveTab = Shuffleboard.getTab("Swerve");
 
@@ -90,8 +99,16 @@ public class RobotContainer {
 
 //TODO: calibrate subsystem on robot start.
 
+    configureAuto();
+
     // Configure the trigger bindings
     configureBindings();
+  }
+
+  public void runStartupCalibration(){
+    if(!armSubsystem.isCalibrated()){
+      new CalibrateArmCommand(armSubsystem).schedule();
+    }
   }
 
   public void loadPreferences(){
@@ -158,6 +175,22 @@ public class RobotContainer {
 
   }
 
+  private void configureAuto(){
+
+      Command utahAuto = Autos.UtahAuto(armSubsystem, swerveSubsystem, intakeSubsystem);
+
+      Command balancePortion = Autos.BalancePortion(swerveSubsystem);
+
+  // A chooser for autonomous commands
+    m_auto_chooser = new SendableChooser<>();
+
+    m_auto_chooser.setDefaultOption("Utah Auto", utahAuto);
+    m_auto_chooser.addOption("Balance Portion", balancePortion);
+
+    SmartDashboard.putData("Auto Routine", m_auto_chooser);
+
+  }
+
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
@@ -165,18 +198,11 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     //return new InstantCommand();
-    return new SequentialCommandGroup(
-      //new CalibrateArmCommand(armSubsystem),
-      //new CalibrateArmCommand(armSubsystem),
-      new ArmMoveToPosition(armSubsystem, 323),
-      new SwerveFixedMoveCmd(swerveSubsystem, 0.0, -0.4, 1.7),
-      new IntakeCommand(intakeSubsystem, 1),
-      new SwerveFixedMoveCmd(swerveSubsystem, 0.0, 0.4, 1.0),
-      new ArmMoveToPosition(armSubsystem, 20),
-      new SwerveFixedMoveCmd(swerveSubsystem, 0.0, 1, 1.4),
-      new SwerveFixedMoveCmd(swerveSubsystem, 1, 0, .1)
+    return m_auto_chooser.getSelected();
 
-    );
+    //return Autos.UtahAuto(armSubsystem, swerveSubsystem, intakeSubsystem);
+
+    
 
     //return new SwerveFixedMoveCmd(swerveSubsystem, 0.0, -0.3, 10.0);
     /*// 1. Create trajectory settings
