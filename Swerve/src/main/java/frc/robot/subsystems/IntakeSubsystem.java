@@ -24,8 +24,8 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeMotor = new CANSparkMax(InputSystemConstants.kInputMotorCANid, MotorType.kBrushed);
     intakeMotor.setIdleMode(IdleMode.kBrake);
 
-    intakespeed = 0.50;
-    outtakespeed = 0.50;
+    intakespeed = 0.65;
+    outtakespeed = 0.65;
   }
 
   /**

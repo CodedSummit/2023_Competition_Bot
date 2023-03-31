@@ -53,10 +53,10 @@ public class SwerveBalanceFwdBack extends CommandBase {
             
         } else if(angle > 0){
             //drive fwd?
-            xSpeed = -0.4;
+            xSpeed = -0.2;
         } else if(angle < 0){
             //drive backward?
-            xSpeed = 0.4;
+            xSpeed = 0.2;
         }
 
         

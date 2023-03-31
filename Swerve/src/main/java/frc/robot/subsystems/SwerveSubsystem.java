@@ -10,6 +10,8 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 import java.util.Map;
 
+import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -68,6 +70,9 @@ public class SwerveSubsystem extends SubsystemBase {
             new Rotation2d(0), getModulePositions());
 
     private double yTiltOffset;
+
+    private MedianFilter yFilter = new MedianFilter(20);
+    private double filtered_y;
 
     private GenericEntry turboSpeedFactor;
     private GenericEntry normalSpeedFactor;
@@ -141,12 +146,18 @@ public class SwerveSubsystem extends SubsystemBase {
     }
     public double yTilt(){ //front back
         //15 degrees max
+        
         double yAngle = gyro.getYFilteredAccelAngle() - yTiltOffset;
         //convert to negative number of tilted the other way
         if(yAngle > 180){
             yAngle -= 360;
         }
-        return yAngle;
+
+
+        filtered_y = yFilter.calculate(yAngle);
+
+
+        return filtered_y;
 
     }
     public void zeroYTilt(){
@@ -177,6 +188,7 @@ public class SwerveSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         odometer.update(getRotation2d(), getModulePositions());
+        
         SmartDashboard.putNumber("Robot Heading", getHeading());
         SmartDashboard.putString("Robot Location", getPose().getTranslation().toString());
         //SmartDashboard.putNumber("X Tilt", xTilt());

@@ -35,13 +35,13 @@ public class ArmMoveToPosition extends CommandBase {
   public void initialize() {
     //move arm
     armSubsystem.setGoal(target_position);
-    /*if(armSubsystem.getPosition() > target_position){
-      armSubsystem.Down(0.75);
+    if(armSubsystem.getPosition() > target_position){
+      //armSubsystem.Down(0.75);
       moving_up = false;
     } else {
-      armSubsystem.Up(1);
+      //armSubsystem.Up(1);
       moving_up = true;
-    }*/
+    }
 
   }
 
@@ -61,9 +61,9 @@ public class ArmMoveToPosition extends CommandBase {
   public boolean isFinished() {
     //test limit switch
     if(moving_up){
-      return armSubsystem.getPosition() >= target_position;
+      return armSubsystem.getPosition() >= (target_position-2);
     } else {
-      return armSubsystem.getPosition() <= target_position;
+      return armSubsystem.getPosition() <= (target_position+2);
     }
   }
 }

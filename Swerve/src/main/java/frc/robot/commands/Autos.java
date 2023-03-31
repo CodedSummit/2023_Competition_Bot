@@ -29,9 +29,52 @@ public final class Autos {
     );
   }
 
+  public static CommandBase BoiseBalance(PIDArmSubsystem armSubsystem, SwerveSubsystem swerveSubsystem, IntakeSubsystem intakeSubsystem) {
+    return new SequentialCommandGroup(
+      new CalibrateArmCommand(armSubsystem),
+      new CalibrateArmCommand(armSubsystem),
+      new ArmMoveToPosition(armSubsystem, 323),
+      new SwerveFixedMoveCmd(swerveSubsystem, 0.0, -0.25, 1.5),
+      new IntakeCommand(intakeSubsystem, 1),
+      new SwerveFixedMoveCmd(swerveSubsystem, 0.0, 0.25, 1.0),
+      new ArmMoveToPosition(armSubsystem, 5),
+      new SwerveFixedMoveCmd(swerveSubsystem, 0.0, .5, 1.0),
+      //new SwerveFixedMoveTillTiltCmd(swerveSubsystem, 0, .5, 3),
+      new SwerveBalanceFwdBack(swerveSubsystem)
+
+    );
+  }
+
+  public static CommandBase BoiseMobility(PIDArmSubsystem armSubsystem, SwerveSubsystem swerveSubsystem, IntakeSubsystem intakeSubsystem) {
+    return new SequentialCommandGroup(
+      new CalibrateArmCommand(armSubsystem),
+      new CalibrateArmCommand(armSubsystem),
+      new ArmMoveToPosition(armSubsystem, 323),
+      new SwerveFixedMoveCmd(swerveSubsystem, 0.0, -0.25, 1.5),
+      new IntakeCommand(intakeSubsystem, 1),
+      new SwerveFixedMoveCmd(swerveSubsystem, 0.0, 0.25, 1.0),
+      new ArmMoveToPosition(armSubsystem, 5),
+      new SwerveFixedMoveCmd(swerveSubsystem, 0.0, .25, 1)
+    );
+  }
+
+  public static CommandBase MobilityShiftRight(PIDArmSubsystem armSubsystem, SwerveSubsystem swerveSubsystem, IntakeSubsystem intakeSubsystem) {
+    return new SequentialCommandGroup(
+      new CalibrateArmCommand(armSubsystem),
+      new CalibrateArmCommand(armSubsystem),
+      new ArmMoveToPosition(armSubsystem, 323),
+      new SwerveFixedMoveCmd(swerveSubsystem, 0.0, -0.25, 1.5),
+      new IntakeCommand(intakeSubsystem, 1),
+      new SwerveFixedMoveCmd(swerveSubsystem, 0.0, 0.25, 1.0),
+      new ArmMoveToPosition(armSubsystem, 5),
+      new SwerveFixedMoveCmd(swerveSubsystem, .25, 0, 1.5),
+      new SwerveFixedMoveCmd(swerveSubsystem, 0.0, .25, 1)
+    );
+  }
+
   public static CommandBase BalancePortion(SwerveSubsystem swerveSubsystem){
     return new SequentialCommandGroup(
-      new SwerveFixedMoveTillTiltCmd(swerveSubsystem, 1, 0, 2),
+      new SwerveFixedMoveTillTiltCmd(swerveSubsystem,0 , .3, 2),
       new SwerveBalanceFwdBack(swerveSubsystem)
     );
   }

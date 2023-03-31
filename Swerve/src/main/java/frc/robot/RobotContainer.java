@@ -13,6 +13,7 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.CalibrateArmCommand;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.IntakeCommand;
+import frc.robot.commands.NothingCommand;
 import frc.robot.commands.SwerveBalanceFwdBack;
 import frc.robot.commands.SwerveFixedMoveCmd;
 import frc.robot.commands.SwerveJoystickCmd;
@@ -168,7 +169,7 @@ public class RobotContainer {
       .onTrue(new InstantCommand(() -> armSubsystem.setGoal(344)));
 
       m_driverController.povRight()
-      .onTrue(new InstantCommand(() -> armSubsystem.setGoal(10)));
+      .onTrue(new InstantCommand(() -> armSubsystem.setGoal(5)));
 
       m_driverController.a()
       .onTrue(new SwerveXPark(swerveSubsystem));
@@ -178,14 +179,23 @@ public class RobotContainer {
   private void configureAuto(){
 
       Command utahAuto = Autos.UtahAuto(armSubsystem, swerveSubsystem, intakeSubsystem);
+      Command boiseBalance = Autos.BoiseBalance(armSubsystem, swerveSubsystem, intakeSubsystem);
+      Command boiseMobility = Autos.BoiseMobility(armSubsystem, swerveSubsystem, intakeSubsystem);
+      Command mobilityShiftRight = Autos.MobilityShiftRight(armSubsystem, swerveSubsystem, intakeSubsystem);
+      Command nothingCommand = new NothingCommand();
 
       Command balancePortion = Autos.BalancePortion(swerveSubsystem);
 
   // A chooser for autonomous commands
     m_auto_chooser = new SendableChooser<>();
 
-    m_auto_chooser.setDefaultOption("Utah Auto", utahAuto);
-    m_auto_chooser.addOption("Balance Portion", balancePortion);
+    m_auto_chooser.setDefaultOption("Mobility", boiseMobility);
+    m_auto_chooser.addOption("Balance", boiseBalance);
+    m_auto_chooser.addOption("Mobility Shift Right", mobilityShiftRight);
+    m_auto_chooser.addOption("Nothing", nothingCommand);
+    
+    //m_auto_chooser.addOption("Utah Auto", utahAuto);
+    //m_auto_chooser.addOption("Balance Portion", balancePortion);
 
     SmartDashboard.putData("Auto Routine", m_auto_chooser);
 
