@@ -107,9 +107,9 @@ public class RobotContainer {
   }
 
   public void runStartupCalibration(){
-    if(!armSubsystem.isCalibrated()){
+    /*if(!armSubsystem.isCalibrated()){
       new CalibrateArmCommand(armSubsystem).schedule();
-    }
+    }*/`
   }
 
   public void loadPreferences(){
@@ -183,13 +183,16 @@ public class RobotContainer {
       Command boiseMobility = Autos.BoiseMobility(armSubsystem, swerveSubsystem, intakeSubsystem);
       Command mobilityShiftRight = Autos.MobilityShiftRight(armSubsystem, swerveSubsystem, intakeSubsystem);
       Command nothingCommand = new NothingCommand();
+      Command cubeEject = Autos.BoiseCubeEject(intakeSubsystem);
 
       Command balancePortion = Autos.BalancePortion(swerveSubsystem);
 
   // A chooser for autonomous commands
     m_auto_chooser = new SendableChooser<>();
 
-    m_auto_chooser.setDefaultOption("Mobility", boiseMobility);
+    
+    m_auto_chooser.setDefaultOption("CubeEject", cubeEject);
+    m_auto_chooser.addOption("Mobility", boiseMobility);
     m_auto_chooser.addOption("Balance", boiseBalance);
     m_auto_chooser.addOption("Mobility Shift Right", mobilityShiftRight);
     m_auto_chooser.addOption("Nothing", nothingCommand);
