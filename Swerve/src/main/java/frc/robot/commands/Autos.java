@@ -54,7 +54,13 @@ public final class Autos {
       new IntakeCommand(intakeSubsystem, 1),
       new SwerveFixedMoveCmd(swerveSubsystem, 0.0, 0.25, 1.0),
       new ArmMoveToPosition(armSubsystem, 5),
-      new SwerveFixedMoveCmd(swerveSubsystem, 0.0, .25, 1)
+      new SwerveFixedMoveCmd(swerveSubsystem, 0.0, .25, 1.7)
+    );
+  }
+
+  public static CommandBase BoiseCubeEject(IntakeSubsystem intakeSubsystem) {
+    return new SequentialCommandGroup(
+      new EjectCubeCommand(intakeSubsystem, 1)
     );
   }
 
@@ -68,7 +74,7 @@ public final class Autos {
       new SwerveFixedMoveCmd(swerveSubsystem, 0.0, 0.25, 1.0),
       new ArmMoveToPosition(armSubsystem, 5),
       new SwerveFixedMoveCmd(swerveSubsystem, .25, 0, 1.5),
-      new SwerveFixedMoveCmd(swerveSubsystem, 0.0, .25, 1)
+      new SwerveFixedMoveCmd(swerveSubsystem, 0.0, .25, 1.7)
     );
   }
 

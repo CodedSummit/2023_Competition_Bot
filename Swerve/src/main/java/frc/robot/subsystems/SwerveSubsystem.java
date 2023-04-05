@@ -71,7 +71,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private double yTiltOffset;
 
-    private MedianFilter yFilter = new MedianFilter(20);
+    private MedianFilter yFilter = new MedianFilter(10);
     private double filtered_y;
 
     private GenericEntry turboSpeedFactor;
