@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import java.util.function.Supplier;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Timer;
@@ -12,23 +13,29 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.SwerveSubsystem;
 
-public class SwerveBalanceFwdBack extends CommandBase {
+public class SwerveMoveRight extends CommandBase {
 
     private final SwerveSubsystem swerveSubsystem;
     private final Supplier<Double> xSpdFunction, ySpdFunction, turningSpdFunction;
     private final SlewRateLimiter xLimiter, yLimiter, turningLimiter;
 
     private boolean fieldOriented;
-    private double runSeconds;
+    private boolean delta_increasing;
+    private double delta, final_distance;
+    double runSeconds;
     double timeoutExpires;
 
-    public SwerveBalanceFwdBack(SwerveSubsystem swerveSubsystem) {
+    public SwerveMoveRight(SwerveSubsystem swerveSubsystem, double percent_speed, double meters) {
         this.swerveSubsystem = swerveSubsystem;
-        this.xSpdFunction = () -> 0.0;
-        this.ySpdFunction = () -> 0.0;
+        //TODO: set speed function as a result of the percent speed and the sign of the delta.
+        
+        this.xSpdFunction = () -> 0.0; //-joystick_y;
+        this.ySpdFunction = () -> -percent_speed; //-joystick_x;
         this.turningSpdFunction = () -> 0.0;
         this.fieldOriented = false;
-        //this.runSeconds = run_seconds;
+        this.delta = meters;
+        this.delta_increasing = false;
+        this.runSeconds = 5; //default timeout of 5 seconds
         this.xLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
         this.yLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
         this.turningLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAngularAccelerationUnitsPerSecond);
@@ -39,32 +46,16 @@ public class SwerveBalanceFwdBack extends CommandBase {
     @Override
     public void initialize() {
         timeoutExpires = Timer.getFPGATimestamp() + runSeconds;
+        Pose2d current_pose = swerveSubsystem.getPose();
+        final_distance = current_pose.getY() - delta;
     }
 
     @Override
     public void execute() {
-        //decide fwd back based on gyro
-        double angle = swerveSubsystem.yTilt();
-        double xSpeed = 0;
-        double ySpeed = 0;
-        if(Math.abs(angle) < 3 ){
-            //balanced. do nothing, or lock wheels?
-            xSpeed = 0;
-            
-        } else if(angle > 0){
-            //drive fwd?
-            xSpeed = 0.15;
-        } else if(angle < 0){
-            //drive backward?
-            xSpeed = -0.15;
-        }
-
-        
-        
         // 1. Get real-time joystick inputs
-        //double xSpeed = xSpdFunction.get();
-        //double ySpeed = ySpdFunction.get();
-        double turningSpeed = 0; //turningSpdFunction.get();
+        double xSpeed = xSpdFunction.get();
+        double ySpeed = ySpdFunction.get();
+        double turningSpeed = turningSpdFunction.get();
 
         // 2. Apply deadband
         xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed : 0.0;
@@ -107,6 +98,16 @@ public class SwerveBalanceFwdBack extends CommandBase {
 
     @Override
     public boolean isFinished() {
+        if(Timer.getFPGATimestamp() > timeoutExpires){
+            return true; //timeout expires
+        }
+        double current_y = swerveSubsystem.getPose().getY();
+        if(delta_increasing && (current_y >= final_distance)){
+            return true;
+        } else if(!delta_increasing && (current_y <= final_distance)){
+            return true;
+        }
+        //base case
         return false;
     }
 }

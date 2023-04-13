@@ -13,24 +13,29 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.SwerveSubsystem;
 
-public class SwerveOdometerXMoveCmd extends CommandBase {
+public class SwerveMoveForward extends CommandBase {
 
     private final SwerveSubsystem swerveSubsystem;
     private final Supplier<Double> xSpdFunction, ySpdFunction, turningSpdFunction;
     private final SlewRateLimiter xLimiter, yLimiter, turningLimiter;
 
     private boolean fieldOriented;
-    private double delta_x;
+    private boolean delta_increasing;
+    private double delta, final_distance;
+    double runSeconds;
     double timeoutExpires;
 
-    public SwerveOdometerXMoveCmd(SwerveSubsystem swerveSubsystem, double percent_speed, double delta_x) {
+    public SwerveMoveForward(SwerveSubsystem swerveSubsystem, double percent_speed, double meters) {
         this.swerveSubsystem = swerveSubsystem;
         //TODO: set speed function as a result of the percent speed and the sign of the delta.
-        this.xSpdFunction = () -> 0.0; //-joystick_y;
+        
+        this.xSpdFunction = () -> percent_speed; //-joystick_y;
         this.ySpdFunction = () -> 0.0; //-joystick_x;
         this.turningSpdFunction = () -> 0.0;
         this.fieldOriented = false;
-        this.delta_x = delta_x;
+        this.delta = meters;
+        this.delta_increasing = true;
+        this.runSeconds = 5; //default timeout of 5 seconds
         this.xLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
         this.yLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
         this.turningLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAngularAccelerationUnitsPerSecond);
@@ -40,9 +45,9 @@ public class SwerveOdometerXMoveCmd extends CommandBase {
 
     @Override
     public void initialize() {
-        timeoutExpires = Timer.getFPGATimestamp(); // + runSeconds;
+        timeoutExpires = Timer.getFPGATimestamp() + runSeconds;
         Pose2d current_pose = swerveSubsystem.getPose();
-        //double finalX = current_pose.getX() + x_offset;
+        final_distance = current_pose.getX() + delta;
     }
 
     @Override
@@ -93,6 +98,16 @@ public class SwerveOdometerXMoveCmd extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return Timer.getFPGATimestamp() > timeoutExpires;
+        if(Timer.getFPGATimestamp() > timeoutExpires){
+            return true; //timeout expires
+        }
+        double current_x = swerveSubsystem.getPose().getX();
+        if(delta_increasing && current_x >= final_distance){
+            return true;
+        } else if(!delta_increasing && current_x <= final_distance){
+            return true;
+        }
+        //base case
+        return false;
     }
 }

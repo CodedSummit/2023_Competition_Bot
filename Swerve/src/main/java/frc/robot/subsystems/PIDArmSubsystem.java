@@ -24,7 +24,7 @@ public class PIDArmSubsystem extends ProfiledPIDSubsystem {
 
     private double currentOutput;
 
-    private double maxPosition = 343;
+    private double maxPosition = 68.5;
 
     private DigitalInput upperLimitSwitch;
     private DigitalInput lowerLimitSwitch;
@@ -94,7 +94,7 @@ public class PIDArmSubsystem extends ProfiledPIDSubsystem {
   
   public void Down(){
     if(!atLowerLimit()){
-      setGoal(5);
+      setGoal(1);
     }
   }
 

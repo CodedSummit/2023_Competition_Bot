@@ -10,6 +10,10 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 import java.util.Map;
 
+import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenix.sensors.Pigeon2Configuration;
+import com.ctre.phoenix.sensors.WPI_Pigeon2;
+
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -65,6 +69,19 @@ public class SwerveSubsystem extends SubsystemBase {
             DriveConstants.kBackRightDriveAbsoluteEncoderReversed);
 
     private final ADIS16470_IMU gyro = new ADIS16470_IMU();
+
+    private final WPI_Pigeon2 pigeon = new WPI_Pigeon2(20, "rio");
+
+    //private Pigeon2Configuration p_config = new Pigeon2Configuration();
+    // set mount pose as rolled 90 degrees counter-clockwise
+   /*  p_config.MountPoseYaw = 0;
+    p_config.MountPosePitch = 0;
+    p_config.MountPoseRoll = 90.0;
+    pigeon.configAllSettings(p_config);*/
+    //pigeon.config
+
+    
+
     //private final AHRS gyro = new AHRS(SPI.Port.kMXP);
     private final SwerveDriveOdometry odometer = new SwerveDriveOdometry(DriveConstants.kDriveKinematics,
             new Rotation2d(0), getModulePositions());
@@ -138,6 +155,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public void zeroHeading() {
         gyro.reset();
+        //pigeon.reset();
         
     }
 
@@ -146,18 +164,12 @@ public class SwerveSubsystem extends SubsystemBase {
     }
     public double yTilt(){ //front back
         //15 degrees max
-        
-        double yAngle = gyro.getYFilteredAccelAngle() - yTiltOffset;
-        //convert to negative number of tilted the other way
-        if(yAngle > 180){
-            yAngle -= 360;
-        }
+
+        return pigeon.getPitch();
 
 
-        filtered_y = yFilter.calculate(yAngle);
 
 
-        return filtered_y;
 
     }
     public void zeroYTilt(){
@@ -166,6 +178,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public double getHeading() {
         return Math.IEEEremainder(gyro.getAngle(), 360); 
+        //return Math.IEEEremainder(pigeon.getAngle(), 360); 
     }
 
     public Rotation2d getRotation2d() {
@@ -178,6 +191,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public void resetOdometry(Pose2d pose) {
         odometer.resetPosition(getRotation2d(), getModulePositions(), pose);
+    }
+    public void resetOdometry(){
+        resetOdometry(new Pose2d());
     }
 
     private SwerveModulePosition [] getModulePositions(){

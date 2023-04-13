@@ -8,6 +8,7 @@ import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PIDArmSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -25,6 +26,15 @@ public final class Autos {
       new ArmMoveToPosition(armSubsystem, 20),
       new SwerveFixedMoveCmd(swerveSubsystem, 0.0, 1, 1.4),
       new SwerveFixedMoveCmd(swerveSubsystem, 1, 0, .1)
+
+    );
+  }
+
+  public static CommandBase OnlyBalance(SwerveSubsystem swerveSubsystem){
+    return new SequentialCommandGroup(
+      new SwerveFixedMoveCmd(swerveSubsystem, 0.0, .2, 1.0),
+      //new SwerveFixedMoveTillTiltCmd(swerveSubsystem, 0, .5, 3),
+      new SwerveBalanceFwdBack(swerveSubsystem)
 
     );
   }
@@ -82,6 +92,15 @@ public final class Autos {
     return new SequentialCommandGroup(
       new SwerveFixedMoveTillTiltCmd(swerveSubsystem,0 , .3, 2),
       new SwerveBalanceFwdBack(swerveSubsystem)
+    );
+  }
+
+  public static CommandBase DistanceMove(SwerveSubsystem swerveSubsystem){
+    return new SequentialCommandGroup(
+      new SwerveMoveForward(swerveSubsystem, 0.1, 0.1), //2 inches
+      new SwerveMoveRight(swerveSubsystem, 0.1, 0.1), //2 inches
+      new SwerveMoveBackward(swerveSubsystem, 0.1, 0.1), //2 inches
+      new SwerveMoveLeft(swerveSubsystem, 0.1, 0.1) //2 inches
     );
   }
 

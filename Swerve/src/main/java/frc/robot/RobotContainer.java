@@ -18,6 +18,7 @@ import frc.robot.commands.SwerveBalanceFwdBack;
 import frc.robot.commands.SwerveFixedMoveCmd;
 import frc.robot.commands.SwerveJoystickCmd;
 import frc.robot.commands.SwerveXPark;
+import frc.robot.commands.ZeroOdometry;
 import frc.robot.subsystems.PIDArmSubsystem;
 import frc.robot.subsystems.ArmDistanceSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -95,7 +96,7 @@ public class RobotContainer {
 
     swerveTab.add(new SwerveXPark(swerveSubsystem));
 
-    SmartDashboard.putData("Balance", new SwerveBalanceFwdBack(swerveSubsystem));
+    SmartDashboard.putData("Zero Odometry", new ZeroOdometry(swerveSubsystem));
     SmartDashboard.putData(swerveSubsystem);
 
 //TODO: calibrate subsystem on robot start.
@@ -109,7 +110,7 @@ public class RobotContainer {
   public void runStartupCalibration(){
     /*if(!armSubsystem.isCalibrated()){
       new CalibrateArmCommand(armSubsystem).schedule();
-    }*/`
+    }*/
   }
 
   public void loadPreferences(){
@@ -166,10 +167,10 @@ public class RobotContainer {
       .onFalse(new InstantCommand(() -> armSubsystem.stop()));
 
       m_driverController.povLeft()
-      .onTrue(new InstantCommand(() -> armSubsystem.setGoal(344)));
+      .onTrue(new InstantCommand(() -> armSubsystem.setGoal(67)));
 
       m_driverController.povRight()
-      .onTrue(new InstantCommand(() -> armSubsystem.setGoal(5)));
+      .onTrue(new InstantCommand(() -> armSubsystem.setGoal(1)));
 
       m_driverController.a()
       .onTrue(new SwerveXPark(swerveSubsystem));
@@ -185,13 +186,18 @@ public class RobotContainer {
       Command nothingCommand = new NothingCommand();
       Command cubeEject = Autos.BoiseCubeEject(intakeSubsystem);
 
+      Command distanceMove = Autos.DistanceMove(swerveSubsystem);
+
       Command balancePortion = Autos.BalancePortion(swerveSubsystem);
+      Command onlyBalance = Autos.OnlyBalance(swerveSubsystem);
 
   // A chooser for autonomous commands
     m_auto_chooser = new SendableChooser<>();
 
     
     m_auto_chooser.setDefaultOption("CubeEject", cubeEject);
+    m_auto_chooser.addOption("DistanceMove", distanceMove);
+    m_auto_chooser.addOption("OnlyBalance", onlyBalance);
     m_auto_chooser.addOption("Mobility", boiseMobility);
     m_auto_chooser.addOption("Balance", boiseBalance);
     m_auto_chooser.addOption("Mobility Shift Right", mobilityShiftRight);
