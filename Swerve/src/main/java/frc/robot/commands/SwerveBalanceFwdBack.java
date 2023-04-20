@@ -21,6 +21,8 @@ public class SwerveBalanceFwdBack extends CommandBase {
     private boolean fieldOriented;
     private double runSeconds;
     double timeoutExpires;
+    private double drivePower, drivePowerLowerLimit, signChangeReduction;
+    private double lastAngle;
 
     public SwerveBalanceFwdBack(SwerveSubsystem swerveSubsystem) {
         this.swerveSubsystem = swerveSubsystem;
@@ -29,6 +31,10 @@ public class SwerveBalanceFwdBack extends CommandBase {
         this.turningSpdFunction = () -> 0.0;
         this.fieldOriented = false;
         //this.runSeconds = run_seconds;
+        this.drivePower = 0.20;
+        this.signChangeReduction = 0.05;
+        this.drivePowerLowerLimit = 0.05;
+        this.lastAngle = -1;
         this.xLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
         this.yLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
         this.turningLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAngularAccelerationUnitsPerSecond);
@@ -39,12 +45,27 @@ public class SwerveBalanceFwdBack extends CommandBase {
     @Override
     public void initialize() {
         timeoutExpires = Timer.getFPGATimestamp() + runSeconds;
+        this.drivePower = 0.20;
+        this.signChangeReduction = 0.05;
+        this.drivePowerLowerLimit = 0.05;
+        this.lastAngle = -1;
     }
 
     @Override
     public void execute() {
         //decide fwd back based on gyro
         double angle = swerveSubsystem.yTilt();
+
+        //detect sign change
+        if(Math.abs(angle) > 3){
+            if(lastAngle>0 && angle<0 && drivePower > drivePowerLowerLimit){
+                drivePower -= signChangeReduction;
+            } else if (lastAngle<0 && angle>0 && drivePower > drivePowerLowerLimit){
+                drivePower -= signChangeReduction;
+            }
+            lastAngle = angle;
+        }
+
         double xSpeed = 0;
         double ySpeed = 0;
         if(Math.abs(angle) < 3 ){
@@ -53,11 +74,13 @@ public class SwerveBalanceFwdBack extends CommandBase {
             
         } else if(angle > 0){
             //drive fwd?
-            xSpeed = 0.15;
+            xSpeed = drivePower;
         } else if(angle < 0){
             //drive backward?
-            xSpeed = -0.15;
+            xSpeed = -drivePower;
         }
+
+
 
         
         

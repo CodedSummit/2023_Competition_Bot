@@ -34,7 +34,7 @@ public class SwerveJoystickCmd extends CommandBase {
         this.ySpdFunction = () -> -m_driverController.getLeftX();
         this.turningSpdFunction = () -> -m_driverController.getRightX();
         this.fieldOriented = true;
-        this.motionScale = 1.0;
+        this.motionScale = swerveSubsystem.getNormalSpeedFactor();
         this.xLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
         this.yLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
         this.turningLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAngularAccelerationUnitsPerSecond);

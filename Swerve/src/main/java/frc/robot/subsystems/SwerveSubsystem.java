@@ -1,35 +1,26 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
-//import com.kauailabs.navx.frc.AHRS;
-import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 import java.util.Map;
 
-import com.ctre.phoenix.sensors.Pigeon2;
-import com.ctre.phoenix.sensors.Pigeon2Configuration;
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
 
-import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.commands.SwerveXPark;
 
 public class SwerveSubsystem extends SubsystemBase {
     private final SwerveModule frontLeft = new SwerveModule(
@@ -72,17 +63,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private final WPI_Pigeon2 pigeon = new WPI_Pigeon2(20, "rio");
 
-    //private Pigeon2Configuration p_config = new Pigeon2Configuration();
-    // set mount pose as rolled 90 degrees counter-clockwise
-   /*  p_config.MountPoseYaw = 0;
-    p_config.MountPosePitch = 0;
-    p_config.MountPoseRoll = 90.0;
-    pigeon.configAllSettings(p_config);*/
-    //pigeon.config
-
-    
-
-    //private final AHRS gyro = new AHRS(SPI.Port.kMXP);
     private final SwerveDriveOdometry odometer = new SwerveDriveOdometry(DriveConstants.kDriveKinematics,
             new Rotation2d(0), getModulePositions());
 
@@ -155,7 +135,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public void zeroHeading() {
         gyro.reset();
-        //pigeon.reset();
+        pigeon.reset();
         
     }
 
@@ -177,8 +157,8 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public double getHeading() {
-        return Math.IEEEremainder(gyro.getAngle(), 360); 
-        //return Math.IEEEremainder(pigeon.getAngle(), 360); 
+        //return Math.IEEEremainder(gyro.getAngle(), 360); 
+        return Math.IEEEremainder(-pigeon.getAngle(), 360); 
     }
 
     public Rotation2d getRotation2d() {

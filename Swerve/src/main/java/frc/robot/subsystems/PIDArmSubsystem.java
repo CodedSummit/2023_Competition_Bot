@@ -94,7 +94,7 @@ public class PIDArmSubsystem extends ProfiledPIDSubsystem {
   
   public void Down(){
     if(!atLowerLimit()){
-      setGoal(1);
+      setGoal(0);
     }
   }
 

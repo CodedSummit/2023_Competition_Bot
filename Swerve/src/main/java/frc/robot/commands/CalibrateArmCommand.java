@@ -34,7 +34,7 @@ public class CalibrateArmCommand extends CommandBase {
     armSubsystem.disable(); //disable PID
     if(armSubsystem.atLowerLimit()){
       lowerLimitFinalState = false;
-      armSubsystem.RawUp(0.05);
+      armSubsystem.RawUp(0.1);
     } else {
       lowerLimitFinalState = true;
       armSubsystem.RawDown(0.02);

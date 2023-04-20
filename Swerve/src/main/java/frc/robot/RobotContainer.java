@@ -4,49 +4,24 @@
 
 package frc.robot;
 
-import frc.robot.Constants.AutoConstants;
-import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.ArmMoveToPosition;
 import frc.robot.commands.Autos;
 import frc.robot.commands.CalibrateArmCommand;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.NothingCommand;
-import frc.robot.commands.SwerveBalanceFwdBack;
-import frc.robot.commands.SwerveFixedMoveCmd;
 import frc.robot.commands.SwerveJoystickCmd;
 import frc.robot.commands.SwerveXPark;
 import frc.robot.commands.ZeroOdometry;
 import frc.robot.subsystems.PIDArmSubsystem;
 import frc.robot.subsystems.ArmDistanceSubsystem;
-import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.SwerveModule;
 import frc.robot.subsystems.SwerveSubsystem;
 
-import java.util.List;
-
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ScheduleCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -170,10 +145,10 @@ public class RobotContainer {
       .onTrue(new InstantCommand(() -> armSubsystem.setGoal(67)));
 
       m_driverController.povRight()
-      .onTrue(new InstantCommand(() -> armSubsystem.setGoal(1)));
+      .onTrue(new InstantCommand(() -> armSubsystem.setGoal(0)));
 
       m_driverController.a()
-      .onTrue(new SwerveXPark(swerveSubsystem));
+      .whileTrue(new SwerveXPark(swerveSubsystem));
 
   }
 
@@ -181,12 +156,15 @@ public class RobotContainer {
 
       Command utahAuto = Autos.UtahAuto(armSubsystem, swerveSubsystem, intakeSubsystem);
       Command boiseBalance = Autos.BoiseBalance(armSubsystem, swerveSubsystem, intakeSubsystem);
-      Command boiseMobility = Autos.BoiseMobility(armSubsystem, swerveSubsystem, intakeSubsystem);
+      Command boiseMobilityRight = Autos.BoiseMobilityShiftRight(armSubsystem, swerveSubsystem, intakeSubsystem);
+      Command boiseMobilityLeft = Autos.BoiseMobilityShiftLeft(armSubsystem, swerveSubsystem, intakeSubsystem);
       Command mobilityShiftRight = Autos.MobilityShiftRight(armSubsystem, swerveSubsystem, intakeSubsystem);
       Command nothingCommand = new NothingCommand();
       Command cubeEject = Autos.BoiseCubeEject(intakeSubsystem);
 
       Command distanceMove = Autos.DistanceMove(swerveSubsystem);
+      Command ejectCubeBalance = Autos.EjectCubeBalance(swerveSubsystem, intakeSubsystem);
+      Command ejectCubeMobilityBalance = Autos.EjectCubeMobilityBalance(swerveSubsystem, intakeSubsystem);
 
       Command balancePortion = Autos.BalancePortion(swerveSubsystem);
       Command onlyBalance = Autos.OnlyBalance(swerveSubsystem);
@@ -196,11 +174,14 @@ public class RobotContainer {
 
     
     m_auto_chooser.setDefaultOption("CubeEject", cubeEject);
-    m_auto_chooser.addOption("DistanceMove", distanceMove);
-    m_auto_chooser.addOption("OnlyBalance", onlyBalance);
-    m_auto_chooser.addOption("Mobility", boiseMobility);
-    m_auto_chooser.addOption("Balance", boiseBalance);
-    m_auto_chooser.addOption("Mobility Shift Right", mobilityShiftRight);
+    //m_auto_chooser.addOption("DistanceMove", distanceMove);
+    //m_auto_chooser.addOption("OnlyBalance", onlyBalance);
+    m_auto_chooser.addOption("Mobility Shift Right", boiseMobilityRight);
+    m_auto_chooser.addOption("Mobility Shift Left", boiseMobilityLeft);
+    //m_auto_chooser.addOption("Balance", boiseBalance);
+    //m_auto_chooser.addOption("Mobility Shift Right", mobilityShiftRight);
+    m_auto_chooser.addOption("EjectCubeBalance", ejectCubeBalance);
+    m_auto_chooser.addOption("EjectCubeMobilityBalance", ejectCubeMobilityBalance);
     m_auto_chooser.addOption("Nothing", nothingCommand);
     
     //m_auto_chooser.addOption("Utah Auto", utahAuto);
