@@ -3,6 +3,7 @@ package frc.robot.commands;
 import java.util.function.Supplier;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Timer;
@@ -24,6 +25,7 @@ public class SwerveMoveLeft extends CommandBase {
     private double delta, final_distance;
     double runSeconds;
     double timeoutExpires;
+    private Pose2d start_pose;
 
     public SwerveMoveLeft(SwerveSubsystem swerveSubsystem, double percent_speed, double meters) {
         this.swerveSubsystem = swerveSubsystem;
@@ -34,7 +36,6 @@ public class SwerveMoveLeft extends CommandBase {
         this.turningSpdFunction = () -> 0.0;
         this.fieldOriented = false;
         this.delta = meters;
-        this.delta_increasing = true;
         this.runSeconds = 5; //default timeout of 5 seconds
         this.xLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
         this.yLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
@@ -46,8 +47,7 @@ public class SwerveMoveLeft extends CommandBase {
     @Override
     public void initialize() {
         timeoutExpires = Timer.getFPGATimestamp() + runSeconds;
-        Pose2d current_pose = swerveSubsystem.getPose();
-        final_distance = current_pose.getY() + delta;
+        start_pose = swerveSubsystem.getPose();
     }
 
     @Override
@@ -101,12 +101,12 @@ public class SwerveMoveLeft extends CommandBase {
         if(Timer.getFPGATimestamp() > timeoutExpires){
             return true; //timeout expires
         }
-        double current_y = swerveSubsystem.getPose().getY();
-        if(delta_increasing && (current_y >= final_distance)){
-            return true;
-        } else if(!delta_increasing && (current_y <= final_distance)){
+
+        Transform2d diff = start_pose.minus(swerveSubsystem.getPose());
+        if(Math.abs(diff.getY()) >= delta){
             return true;
         }
+
         //base case
         return false;
     }

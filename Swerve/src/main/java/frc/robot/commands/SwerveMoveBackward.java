@@ -3,6 +3,7 @@ package frc.robot.commands;
 import java.util.function.Supplier;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Timer;
@@ -20,10 +21,10 @@ public class SwerveMoveBackward extends CommandBase {
     private final SlewRateLimiter xLimiter, yLimiter, turningLimiter;
 
     private boolean fieldOriented;
-    private boolean delta_increasing;
-    private double delta, final_distance;
+    private double delta;
     double runSeconds;
     double timeoutExpires;
+    private Pose2d start_pose;
 
     public SwerveMoveBackward(SwerveSubsystem swerveSubsystem, double percent_speed, double meters) {
         this.swerveSubsystem = swerveSubsystem;
@@ -34,8 +35,7 @@ public class SwerveMoveBackward extends CommandBase {
         this.turningSpdFunction = () -> 0.0;
         this.fieldOriented = false;
         this.delta = meters;
-        this.delta_increasing = false;
-        this.runSeconds = 5; //default timeout of 5 seconds
+        this.runSeconds = 10; //default timeout of 5 seconds
         this.xLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
         this.yLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
         this.turningLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAngularAccelerationUnitsPerSecond);
@@ -46,8 +46,7 @@ public class SwerveMoveBackward extends CommandBase {
     @Override
     public void initialize() {
         timeoutExpires = Timer.getFPGATimestamp() + runSeconds;
-        Pose2d current_pose = swerveSubsystem.getPose();
-        final_distance = current_pose.getX() - delta;
+        start_pose = swerveSubsystem.getPose();
     }
 
     @Override
@@ -86,10 +85,6 @@ public class SwerveMoveBackward extends CommandBase {
         swerveSubsystem.setModuleStates(moduleStates);
     }
 
-    public void setFieldOriented(boolean fieldOriented){
-        this.fieldOriented = fieldOriented;
-        SmartDashboard.putBoolean("Field Oriented", fieldOriented);
-    }
 
     @Override
     public void end(boolean interrupted) {
@@ -101,12 +96,12 @@ public class SwerveMoveBackward extends CommandBase {
         if(Timer.getFPGATimestamp() > timeoutExpires){
             return true; //timeout expires
         }
-        double current_x = swerveSubsystem.getPose().getX();
-        if(delta_increasing && current_x >= final_distance){
-            return true;
-        } else if(!delta_increasing && current_x <= final_distance){
+
+        Transform2d diff = start_pose.minus(swerveSubsystem.getPose());
+        if(Math.abs(diff.getX()) >= delta){
             return true;
         }
+
         //base case
         return false;
     }
