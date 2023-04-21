@@ -127,13 +127,14 @@ public class SwerveModule implements Sendable {
     }
 
     public void setDesiredState(SwerveModuleState state) {
+        state = SwerveModuleState.optimize(state, getState().angle);
+        turningMotor.set(turningPidController.calculate(getTurningPosition(), state.angle.getRadians()));
+
         if (Math.abs(state.speedMetersPerSecond) < 0.005) {
-            stop();
+            driveTalonFX.set(ControlMode.PercentOutput, 0);
             return;
         }
-        state = SwerveModuleState.optimize(state, getState().angle);
         driveTalonFX.set(ControlMode.PercentOutput, state.speedMetersPerSecond / DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
-        turningMotor.set(turningPidController.calculate(getTurningPosition(), state.angle.getRadians()));
     }
 
     public void stop() {

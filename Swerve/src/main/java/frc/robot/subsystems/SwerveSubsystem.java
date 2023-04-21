@@ -138,6 +138,9 @@ public class SwerveSubsystem extends SubsystemBase {
         pigeon.reset();
         
     }
+    public void setHeading(double setAngle){
+        pigeon.setYaw(setAngle);
+    }
 
     public double xTilt() {
         return gyro.getXFilteredAccelAngle();

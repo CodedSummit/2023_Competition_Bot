@@ -13,13 +13,13 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.SwerveSubsystem;
 
-public class SwerveXPark extends CommandBase {
+public class SetBackwardsField extends CommandBase {
 
     private final SwerveSubsystem swerveSubsystem;
 
     double timeoutExpires;
 
-    public SwerveXPark(SwerveSubsystem swerveSubsystem) {
+    public SetBackwardsField(SwerveSubsystem swerveSubsystem) {
         this.swerveSubsystem = swerveSubsystem;
         addRequirements(swerveSubsystem);
     
@@ -27,30 +27,21 @@ public class SwerveXPark extends CommandBase {
 
     @Override
     public void initialize() {
+        swerveSubsystem.setHeading(180);
     }
 
     @Override
     public void execute() {
 
-        // 5. Convert chassis speeds to individual module states
-        SwerveModuleState[] moduleStates = {
-            new SwerveModuleState(0, new Rotation2d(45)),
-            new SwerveModuleState(0, new Rotation2d(225)),
-            new SwerveModuleState(0, new Rotation2d(225)),
-            new SwerveModuleState(0, new Rotation2d(45)),
-        };
-
-        // 6. Output each module states to wheels
-        swerveSubsystem.setModuleStates(moduleStates);
     }
 
     @Override
     public void end(boolean interrupted) {
-        swerveSubsystem.stopModules();
+
     }
 
     @Override
     public boolean isFinished() {
-        return false;
+        return true;
     }
 }

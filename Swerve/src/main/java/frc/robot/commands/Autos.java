@@ -59,12 +59,30 @@ public final class Autos {
     return new SequentialCommandGroup(
       new CalibrateArmCommand(armSubsystem),
       new CalibrateArmCommand(armSubsystem),
-      new ArmMoveToPosition(armSubsystem, 68.5),
+      new ArmMoveToPosition(armSubsystem, 67.9),
       new SwerveFixedMoveCmd(swerveSubsystem, 0.0, -0.25, 1.5),
       new IntakeCommand(intakeSubsystem, 1),
       new SwerveFixedMoveCmd(swerveSubsystem, 0.0, 0.25, 1.0),
       new ArmMoveToPosition(armSubsystem, 0),
-      new SwerveMoveRight(swerveSubsystem, 0.1, 0.2), //4 inches
+      new SwerveMoveLeft(swerveSubsystem, 0.1, 0.1), //4 inches
+      new SwerveFixedMoveCmd(swerveSubsystem, 0.0, .25, 1.7)
+    );
+  }
+
+  public static CommandBase CubeMobilityShiftLeft(PIDArmSubsystem armSubsystem, SwerveSubsystem swerveSubsystem, IntakeSubsystem intakeSubsystem) {
+    return new SequentialCommandGroup(
+      new EjectCubeCommand(intakeSubsystem, 1),
+      new SwerveMoveBackward(swerveSubsystem, 0.1, .1),
+      new SwerveMoveRight(swerveSubsystem, 0.1, 0.1), //4 inches
+      new SwerveFixedMoveCmd(swerveSubsystem, 0.0, .25, 1.7)
+    );
+  }
+
+  public static CommandBase CubeMobilityShiftRight(PIDArmSubsystem armSubsystem, SwerveSubsystem swerveSubsystem, IntakeSubsystem intakeSubsystem) {
+    return new SequentialCommandGroup(
+      new EjectCubeCommand(intakeSubsystem, 1),
+      new SwerveMoveBackward(swerveSubsystem, 0.1, .1),
+      new SwerveMoveLeft(swerveSubsystem, 0.1, 0.1), //4 inches
       new SwerveFixedMoveCmd(swerveSubsystem, 0.0, .25, 1.7)
     );
   }
@@ -73,12 +91,12 @@ public final class Autos {
     return new SequentialCommandGroup(
       new CalibrateArmCommand(armSubsystem),
       new CalibrateArmCommand(armSubsystem),
-      new ArmMoveToPosition(armSubsystem, 68.5),
+      new ArmMoveToPosition(armSubsystem, 67.9),
       new SwerveFixedMoveCmd(swerveSubsystem, 0.0, -0.25, 1.5),
       new IntakeCommand(intakeSubsystem, 1),
       new SwerveFixedMoveCmd(swerveSubsystem, 0.0, 0.25, 1.0),
       new ArmMoveToPosition(armSubsystem, 0),
-      new SwerveMoveLeft(swerveSubsystem, 0.1, 0.2), //4 inches
+      new SwerveMoveRight(swerveSubsystem, 0.1, 0.1), //4 inches
       new SwerveFixedMoveCmd(swerveSubsystem, 0.0, .25, 1.7)
     );
   }
@@ -121,8 +139,9 @@ public final class Autos {
   public static CommandBase EjectCubeMobilityBalance(SwerveSubsystem swerveSubsystem, IntakeSubsystem intakeSubsystem){
     return new SequentialCommandGroup(
       new EjectCubeCommand(intakeSubsystem, 1),
-      new SwerveMoveBackward(swerveSubsystem, .5, 4),
-      new SwerveFixedMoveTillTiltCmd(swerveSubsystem,0 , -.5, 2),
+      new SwerveMoveBackward(swerveSubsystem, .5, 4.5),
+      new SwerveMoveForward(swerveSubsystem, .2, .2),
+      new SwerveFixedMoveTillTiltCmd(swerveSubsystem,0 , -0.5, 3),
       new SwerveBalanceFwdBack(swerveSubsystem)
     );
   }

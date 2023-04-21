@@ -31,7 +31,7 @@ public class SwerveBalanceFwdBack extends CommandBase {
         this.turningSpdFunction = () -> 0.0;
         this.fieldOriented = false;
         //this.runSeconds = run_seconds;
-        this.drivePower = 0.20;
+        this.drivePower = 0.25;
         this.signChangeReduction = 0.05;
         this.drivePowerLowerLimit = 0.05;
         this.lastAngle = -1;

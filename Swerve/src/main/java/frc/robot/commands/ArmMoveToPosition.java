@@ -63,7 +63,7 @@ public class ArmMoveToPosition extends CommandBase {
     if(moving_up){
       return armSubsystem.getPosition() >= (target_position-2);
     } else {
-      return armSubsystem.getPosition() <= (target_position+2);
+      return armSubsystem.getPosition() <= (target_position+0.5);
     }
   }
 }

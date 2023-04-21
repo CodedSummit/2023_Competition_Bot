@@ -158,6 +158,9 @@ public class RobotContainer {
       Command boiseBalance = Autos.BoiseBalance(armSubsystem, swerveSubsystem, intakeSubsystem);
       Command boiseMobilityRight = Autos.BoiseMobilityShiftRight(armSubsystem, swerveSubsystem, intakeSubsystem);
       Command boiseMobilityLeft = Autos.BoiseMobilityShiftLeft(armSubsystem, swerveSubsystem, intakeSubsystem);
+      Command cubeMobilityRight = Autos.CubeMobilityShiftRight(armSubsystem, swerveSubsystem, intakeSubsystem);
+      Command cubeMobilityLeft = Autos.CubeMobilityShiftRight(armSubsystem, swerveSubsystem, intakeSubsystem);
+      
       Command mobilityShiftRight = Autos.MobilityShiftRight(armSubsystem, swerveSubsystem, intakeSubsystem);
       Command nothingCommand = new NothingCommand();
       Command cubeEject = Autos.BoiseCubeEject(intakeSubsystem);
@@ -178,6 +181,8 @@ public class RobotContainer {
     //m_auto_chooser.addOption("OnlyBalance", onlyBalance);
     m_auto_chooser.addOption("Mobility Shift Right", boiseMobilityRight);
     m_auto_chooser.addOption("Mobility Shift Left", boiseMobilityLeft);
+    m_auto_chooser.addOption("Cube Shift Right", cubeMobilityRight);
+    m_auto_chooser.addOption("Cube Shift Left", cubeMobilityLeft);
     //m_auto_chooser.addOption("Balance", boiseBalance);
     //m_auto_chooser.addOption("Mobility Shift Right", mobilityShiftRight);
     m_auto_chooser.addOption("EjectCubeBalance", ejectCubeBalance);
@@ -190,6 +195,10 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Routine", m_auto_chooser);
 
   }
+
+public void configSetOrientation(){
+  swerveSubsystem.setHeading(180);
+}
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

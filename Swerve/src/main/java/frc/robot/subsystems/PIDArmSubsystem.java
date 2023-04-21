@@ -24,7 +24,7 @@ public class PIDArmSubsystem extends ProfiledPIDSubsystem {
 
     private double currentOutput;
 
-    private double maxPosition = 68.5;
+    private double maxPosition = 67.5;
 
     private DigitalInput upperLimitSwitch;
     private DigitalInput lowerLimitSwitch;
